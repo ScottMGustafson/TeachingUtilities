@@ -1,4 +1,4 @@
-ClassUtils
+TeachingUtilites
 ==============================
 
 some helpful tools I've developed to assist with grading and contacting students
