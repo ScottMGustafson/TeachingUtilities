@@ -42,9 +42,12 @@ def getStats(assignment,section):
 
     try:
       data.append(float(temp))
-    except:
-      print(str(temp))
-      pass
+    except ValueError:  #item is presumably None
+      if temp is None or temp=='':
+        pass
+      else:
+        print(temp)
+        raise
 
   return np.mean(data), np.std(data)
 

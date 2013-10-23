@@ -1,6 +1,7 @@
 import csv
 from sys import exit
 import re
+from os.path import isfile
 from collections import namedtuple
 
 """
@@ -10,6 +11,43 @@ data into a list of students.
 
 """
 
+def extraComma(string):
+  for item in string.split('\",\"'):
+    if ',' in item:  
+      return True
+  return False
+
+def stripExtraCommas(filename):
+  """
+  since we are using csv data with the delimiter:  
+    "value","newvalue"
+
+  we need to strip off excess commas in the case where the data is like:
+    "value","value,with a comma"
+
+  input:
+  ---------------------------
+  a filename of csv data delimited with ","
+
+  output:
+  ---------------------------
+  None
+  """
+  f = open(filename,'r')
+  data = f.readlines()
+  newdata = []
+  for string in data:
+    strlist = string.split('\",\"')
+    for i in range(0,len(strlist)):
+      strlist[i] = strlist[i].replace(',','')
+    newdata.append('\",\"'.join(strlist))
+  f.close()
+
+  f = open(filename,'w')
+  f.writelines(newdata)
+  f.close()
+  return
+
 def non_blank(filestream):
   """return lines which are neither empty, nor contain any # symbols"""
   for line in filestream:
@@ -17,7 +55,7 @@ def non_blank(filestream):
     if lines and lines[0]!='#':
       yield lines 
 
-def sanitize(string,ishead=False):
+def sanitize(string,ishead=False):    #issue maybe with stray quotes....maybenot.
   """
   erase all text that is not alphanumeric text or underscores.
   
@@ -25,12 +63,13 @@ def sanitize(string,ishead=False):
   if true, then only '_' and alphanumeric characters are allowed.
   otherwise, a wider range of chars are permitted.
   """
+  string = string.replace('\"','')
   string = re.sub(r'\s+','_',((string.lower()).strip()))
   if ishead:
-    string = re.sub(r'[^0-9a-zA-Z_\$]+','_',string)
+    string = re.sub(r'[^0-9a-zA-Z_\$\"]+','_',string)
   else:
-    string = re.sub(r'[^0-9a-zA-Z_\.\$]+','_',string)
-  return re.sub(r'_+','_',string)
+    string = re.sub(r'[^0-9a-zA-Z_\.\$\"]+','_',string)
+  return re.sub(r'_+','_',string)   #  replace recurring instances of _ 
 
 def sanitizeList(lst,ishead=False):
   return [ sanitize(item,ishead) for item in lst  ]
@@ -41,20 +80,21 @@ def indices(lst,value):
     if sanitize(rm_nums(y))==sanitize(rm_nums(value)):
       yield i
     
-def sanitizeKeys(cfg_dict,lst):
+def sanitizeKeys(cfg_dict,lstt):
   """
   sanitize all strings to pure alphanumeric or underscores.
   lst is incoming header data
   """
-  lst = [sanitize(item) for item in lst]
+
+  lst = [sanitize(item) for item in lstt]
   for key, value in cfg_dict.iteritems():  
 #problem lies in here!!!  assignments still not mapping correctly
-    value = sanitize(value) 
     if not '$' in key:  
       if value in lst:
         lst[lst.index(value)] = key
       else:
         continue
+
     else:
       for j in indices(lst,value):
         y = lst[j][:len(value)] if len(value)<len(lst[j]) else lst[j]
@@ -85,9 +125,7 @@ def get_nums(var,raw,specialChar='$'):
   #in case the order gets messed up:
   var = sanitize(var)
   raw = sanitize(raw)
-  
-  var = sanitize(var)
-  raw = sanitize(raw)
+
   result1 = re.findall(r'[0-9]+|\$+',var)
   result2 = re.findall(r'[0-9]+|\$+',raw)
 
@@ -145,7 +183,7 @@ def numConvert(string):
   try:
     temp = int(string)
   except:
-    print string
+    print(string)
     sys.exit()
   return string
 
@@ -156,24 +194,31 @@ def getData(cfg_dict=read_config(), mySection=None,verbose=False):  #this code o
   output a list of student instances
   """
   try:
-    f = open(cfg_dict['csvfile'], 'rb')
+    assert(isfile(cfg_dict['csvfile'])) 
   except IOError:
     print(str(cfg_dict['csvfile'])+' doesn\'t exist.')
     exit()
   except KeyError:
     if cfg_dict is not None:
-      print str(cfg_dict)
+      print(str(cfg_dict))
     else:
       print('cfg_dict is None')
     raise
-  except:
-    print(str(cfg_dict['csvfile'])+' :unknown error')
-    exit()
-
+  
+  stripExtraCommas(cfg_dict['csvfile'])
+  f = open(cfg_dict['csvfile'], 'r')
   gradeFile = list(csv.reader(f, delimiter=',', quotechar='\"'))
-  head = sanitizeKeys(cfg_dict,list(gradeFile[0]))
-  student = namedtuple('Student',head)  #student class factory
-
+  assert(type(gradeFile)==list)
+  head = sanitizeKeys(cfg_dict,gradeFile[0])
+  try:
+    student = namedtuple('Student',head)  #student class factory
+  except ValueError:
+    print("error with header data:\n\n")
+    for item in head:
+      print(item)
+    print("\n\n")
+    raise
+    
   del(gradeFile[0])   
 
   if mySection is None:  
