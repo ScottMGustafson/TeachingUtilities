@@ -15,7 +15,7 @@ def assign_seats(sections=None):
 
   try:
     if sections is None:  
-      sections = cfg_dict["mysections"].split('_')  #split with _ as opposed to comma because everything gets sanitized
+      sections = cfg_dict["mysections"]  #split with _ as opposed to comma because everything gets sanitized
     tables = int(cfg_dict['tables'])
     seats  = int(cfg_dict["seats_per_table"])
   except KeyError:
@@ -34,7 +34,10 @@ def assign_seats(sections=None):
 
   return
 
-def printScores(sections,assignments):
+def printScores(assignments,sections=None):
+  if sections is None:
+    cfg_dict=read_config()
+    sections = cfg_dict['mysections']
   for section in sections:
     print("\nsection: "+str(section))
     print("===========================================")
@@ -50,10 +53,18 @@ def printScores(sections,assignments):
 
 def getuname(sections=None,ext="@ucsd.edu"):
   """print out email friendly comma-separated string of all email addresses"""
+  cfg_dict = read_config()
   if sections is None:  
-    sections = cfg_dict["mysections"].split('_')
+    try:
+      sections = cfg_dict["mysections"]
+    except KeyError:
+      print("key: \'mysections\' does not exist")
+      raise
+    except:
+      print("exception: key is "+cfg_dict["mysections"])
+      raise
   for section in sections:
-    print("\n\n  "+section)
+    print("\n\n  "+str(section))
     studentList = getData(mySection=section)
     string = ''
     for item in studentList:
@@ -83,13 +94,9 @@ def runAll():
   just an example of how to run a few of these functions
   """
 
-  assignments = ['quiz01','prelab01','inlab01','conclusion01','quiz02','prelab02','inlab02','conclusion02','quiz03','prelab03','inlab03']
   getuname()
-
   assign_seats() 
-  printScores(sections, assignments)
-  
-  data = []
+  printScores( ['quiz04', 'prelab04', 'inlab04', 'conclusion03'] )
 
 if __name__ == '__main__':
   runAll()

@@ -62,13 +62,21 @@ def sanitize(string,ishead=False):    #issue maybe with stray quotes....maybenot
   head is True if the input string will be used as a head item
   if true, then only '_' and alphanumeric characters are allowed.
   otherwise, a wider range of chars are permitted.
+
+  also, due to restrictions of named_tuple, head cannot start with number:
+  to fix this, append 'N' to front.  (name doesn't matter since this item)
+  will never get used anyway.
   """
   string = string.replace('\"','')
   string = re.sub(r'\s+','_',((string.lower()).strip()))
   if ishead:
     string = re.sub(r'[^0-9a-zA-Z_\$\"]+','_',string)
+    if string[0].isdigit() or string[0]=='_':
+      string = 'N'+string
   else:
     string = re.sub(r'[^0-9a-zA-Z_\.\$\"]+','_',string)
+
+
   return re.sub(r'_+','_',string)   #  replace recurring instances of _ 
 
 def sanitizeList(lst,ishead=False):
@@ -86,7 +94,15 @@ def sanitizeKeys(cfg_dict,lstt):
   lst is incoming header data
   """
 
-  lst = [sanitize(item) for item in lstt]
+  lst = [sanitize(item,True) for item in lstt]
+  if lst[0][0]=='\"':
+    lst[0].replace('\"','')
+
+  if lst[-1][-1]=='\"':
+    lst[0].replace('\"','')
+
+
+
   for key, value in cfg_dict.iteritems():  
 #problem lies in here!!!  assignments still not mapping correctly
     if not '$' in key:  
@@ -167,8 +183,12 @@ def read_config(filename='data.cfg'):
         print(line+": should only have 1 \'$\' character.  please reformat.")
         exit()
       
-      key  = sanitize(temp[0])
-      value= sanitize(temp[1])
+      if 'mysections' in temp[0]:
+        key = 'mysections'  
+        value=[item.strip() for item in temp[1].split(',')]
+      else:
+        key  = sanitize(temp[0])
+        value= sanitize(temp[1])
       cfg_dict[key] = value
         
   return cfg_dict
@@ -233,5 +253,6 @@ def getData(cfg_dict=read_config(), mySection=None,verbose=False):  #this code o
           print(pupil.section+mySection)
         if pupil.section == mySection:
           studentList.append(pupil)
+    #printFields(studentList[0])
     return(studentList)
 
