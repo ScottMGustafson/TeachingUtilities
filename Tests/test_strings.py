@@ -37,9 +37,9 @@ class stringTest(unittest.TestCase):
           'the \"\"\n\r value 4','the \"\" value   5','the \"\"{ value  6',
           'this (  12  value3','this (  14  value5',  \
           'this_should not+be in the list' ]
-
+#get_nums only returns first instance of a number.
     result=[ 'test','test','must_test4','must_test5','must_test6',  \
-          'ok_test_12_this_12','ok_test_14_this_14',  \  #get_nums only returns first instance of a number.
+          'ok_test_12_this_12','ok_test_14_this_14',  \
           'this_should_not_be_in_the_list' ]
 
     self.assertTrue(result==sanitizeKeys(cfg_dict,lstt))
