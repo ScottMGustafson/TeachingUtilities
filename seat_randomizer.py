@@ -9,7 +9,13 @@ class _Seat(object):
     self.seat = seat
     self.student=student
   def studentString(self):
-    return self.student.firstname+' '+self.student.lastname
+    try:
+      return self.student.firstname+' '+self.student.lastname
+    except AttributeError:  #so hacky!!  need to fix underlying problem.
+      printFields(self.student)
+      return self.student.firstname+' '+self.student.N_last_name
+      raise
+
 
 def seat_randomizer(section,student_list,tables,seats,filename="seating.txt"):
   """

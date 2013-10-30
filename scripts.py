@@ -94,9 +94,9 @@ def runAll():
   just an example of how to run a few of these functions
   """
 
-  getuname()
+  #getuname()
   assign_seats() 
-  printScores( ['quiz04', 'prelab04', 'inlab04', 'conclusion03'] )
+  #printScores( ['quiz04', 'prelab04', 'inlab04', 'conclusion03'] )
 
 if __name__ == '__main__':
   runAll()

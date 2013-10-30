@@ -67,7 +67,10 @@ def sanitize(string,ishead=False):    #issue maybe with stray quotes....maybenot
   to fix this, append 'N' to front.  (name doesn't matter since this item)
   will never get used anyway.
   """
-  string = string.replace('\"','')
+  chars_to_erase = ['\"','\r','\n','\t']
+  for item in chars_to_erase:  
+    string = string.replace(item,'')
+
   string = re.sub(r'\s+','_',((string.lower()).strip()))
   if ishead:
     string = re.sub(r'[^0-9a-zA-Z_\$\"]+','_',string)
@@ -95,13 +98,6 @@ def sanitizeKeys(cfg_dict,lstt):
   """
 
   lst = [sanitize(item,True) for item in lstt]
-  if lst[0][0]=='\"':
-    lst[0].replace('\"','')
-
-  if lst[-1][-1]=='\"':
-    lst[0].replace('\"','')
-
-
 
   for key, value in cfg_dict.iteritems():  
 #problem lies in here!!!  assignments still not mapping correctly
@@ -136,7 +132,7 @@ def rm_nums_replace(string):
 
 def get_nums(var,raw,specialChar='$'):
   """
-  find num in raw to replace specialChar in var.
+  find num in raw to replace specialChar in var with first number
   """
   #in case the order gets messed up:
   var = sanitize(var)
@@ -153,7 +149,7 @@ def get_nums(var,raw,specialChar='$'):
     print(raw+" : "+str(result2))
     raise
   try:
-    ind  = result1.index('$')
+    ind  = result1.index('$')   #worries about this if #digits don't mach string digit number
     return result2[ind]
   except ValueError:
     return None
@@ -196,7 +192,10 @@ def read_config(filename='data.cfg'):
 def numConvert(string):
   """
   for a string that should be an int, remove any weird chars and strip off 
-  everything right of the decimal
+  everything right of the decimal.  Do not use if not head
+
+  for example:  section number  written as 84455.0 will be 84455
+
   """
   string = re.sub(r'[^0-9\.]','',string)
   string = string.split('.')[0]
