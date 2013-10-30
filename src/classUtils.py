@@ -3,6 +3,7 @@ from sys import exit
 import re
 from os.path import isfile
 from collections import namedtuple
+from pkg_resources import resource_stream
 
 """
 this module includes various functions for taking data from csv into a usable 
@@ -163,29 +164,29 @@ def printFields(obj):
 
   return
 
-def read_config(filename='data.cfg'):
+def read_config(filestream=resource_stream('TeachingUtils', 'data.cfg')):
   """
   read the configuration file, by default data.cfg.
   returns a dict containing relevant config info.
   """
   cfg_dict = {}
-  with open(filename,'r') as f:
-    for line in non_blank(f):
-      temp = line.split('::')
-      if not '::' in line or len(temp)>2: 
-        print(line+'\nbad formatting: data.cfg')
-        exit()
-      elif len(re.findall(r'\$',line.split()[1]))>1:
-        print(line+": should only have 1 \'$\' character.  please reformat.")
-        exit()
+  f = filestream
+  for line in non_blank(f):
+    temp = line.split('::')
+    if not '::' in line or len(temp)>2: 
+      print(line+'\nbad formatting: data.cfg')
+      exit()
+    elif len(re.findall(r'\$',line.split()[1]))>1:
+      print(line+": should only have 1 \'$\' character.  please reformat.")
+      exit()
       
-      if 'mysections' in temp[0]:
-        key = 'mysections'  
-        value=[item.strip() for item in temp[1].split(',')]
-      else:
-        key  = sanitize(temp[0])
-        value= sanitize(temp[1])
-      cfg_dict[key] = value
+    if 'mysections' in temp[0]:
+      key = 'mysections'  
+      value=[item.strip() for item in temp[1].split(',')]
+    else:
+      key  = sanitize(temp[0])
+      value= sanitize(temp[1])
+    cfg_dict[key] = value
         
   return cfg_dict
 

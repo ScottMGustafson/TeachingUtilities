@@ -4,7 +4,7 @@ from TeachingUtils.classUtils import *
 class DataTest(unittest.TestCase):
   def setUp(self):
     self.cfg_file = 'config_test.cfg'
-    self.cfg_dict = read_config(filename=self.cfg_file)
+    self.cfg_dict = read_config(filestream=open(self.cfg_file,'r'))
     self.csv_file = 'csv_test.csv'
   def tearDown(self):
     self.cfg_dict = None
