@@ -1,14 +1,31 @@
-#!/usr/bin/python
-from distutils.core import setup
 
-setup(name='TeachingUtils',
+#!/usr/bin/python
+from setuptools import setup, find_packages
+
+def readme():
+    with open('README.md') as f:
+        return f.read()
+
+setup(name='Teaching Utilites',
       version='1.0',
       description='some tools to assist various tasks faced by teachers',
+      long_description=readme(),
+      keywords='education',
+      url='http://github.com/astroScott/TeachingUtilities',
       author='Scott Gustafson',
       author_email='s1gustaf@gmail.com',
-      packages=['TeachingUtils','TeachingUtils.Tests','TeachingUtils.scripts'],
-      package_dir={'TeachingUtils':'./src','TeachingUtils.Tests':'./Tests','TeachingUtils.scripts':'./scripts'},
-      package_data={'TeachingUtils':['./Data/*']},
-      license='GNU GPLv2',
-      long_description=open('./README.md').read()
-     )
+      license='GNU GPL, version 2',
+      packages=find_packages('teachingutils','Tests'),
+      package_dir = {'':'teachingutils','teachingutils/Tests':'teachingutils.Tests'},   # tell distutils packages are under src
+      install_requires=[
+          'scipy', 'numpy'
+      ],
+      test_suite='nose.collector',
+      tests_require=['nose', 'nose-cover3'],
+      entry_points={
+          'console_scripts': ['teachingutils-names=teachingutils.scripts:getuname',
+                            'teachingutils-seats=teachingutils.scripts:assign_seats',
+                            'teachingutils-test=teachingutils.Tests.runAllTests'],
+      },
+      include_package_data=True,
+      zip_safe=False)
