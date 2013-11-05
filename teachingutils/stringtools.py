@@ -84,7 +84,9 @@ def sanitizeList(lst,ishead=False):
 
 def indices(lst,value):
   for i, x in enumerate(lst):
-    y = x[:len(str(value))] if len(value)<len(x) else x
+    value = str(value)
+    x = str(x)
+    y = x[:len(str(value))] if len(str(value)) < len(str(x)) else x
     if sanitize(rm_nums(y))==sanitize(rm_nums(value)):
       yield i
     
@@ -98,6 +100,8 @@ def sanitizeKeys(cfg_dict,lstt):
 
   for key, value in cfg_dict.iteritems():  
 #problem lies in here!!!  assignments still not mapping correctly
+    value = sanitize(value,True)
+    key = sanitize(key,True)
     if not '$' in key:  
       if value in lst:
         lst[lst.index(value)] = key
@@ -105,9 +109,9 @@ def sanitizeKeys(cfg_dict,lstt):
         continue
 
     else:
-      for j in indices(lst,value):
-        y = lst[j][:len(value)] if len(value)<len(lst[j]) else lst[j]
-        assert(len(y)==len(value))
+      for j in indices(lst,value):  #for every element of the header that we care about...
+        #y = lst[j][:len(value)] if len(value)<len(lst[j]) else lst[j]  # why this?
+        y = lst[j]        
         num = get_nums(value,y)
         if num is None: 
           continue
@@ -119,6 +123,10 @@ def rm_nums(string,specialChar='$'):
   """
   rm digits and any other special chars
   """
+  try:
+    assert(type(string) is str)
+  except AssertionError:
+    string = str(string)
   return re.sub(r'[0-9]+|\$+','',string)
 
 def rm_nums_replace(string):

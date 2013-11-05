@@ -27,23 +27,35 @@ class stringTest(unittest.TestCase):
     indexlst=[i for i in indices(lst,value)]
     testindex=[3,5,6,11]
 
-    self.assertTrue(newlst==teslst)       #test the correct values passed
+    self.assertTrue(newlst==testlst)       #test the correct values passed
     self.assertTrue(testindex==indexlst)  #test the correct indices
 
   def test_keys(self):
-    cfg_dict = {'test':'  [2345234 ;; value','must test$':'the \"\" value  $', \
-            'ok.test $  this $':'this (  $  value$'}
+    cfg_dict = {'test':'  [2345234 ;; value',
+                'must test$':'the \"\" value  $',
+                'ok.test $  this $':'this (  $  value$'}
 
-    lstt = ['  [2345234  & ;; value','  [2345234  & ;; value',    \
-          'the \"\"\n\r value 4','the \"\" value   5','the \"\"{ value  6',
-          'this (  12  value3','this (  14  value5',  \
-          'this_should not+be in the list' ]
+    lstt = ['  [2345234  & ;; value',
+            '  [2345234  & ;; value',    
+            'the \"\"\n\r value 4',
+            'the \"\" value   5',
+            'the \"\"{ value  6',
+            'this (  12  value3',
+            'this (  14  value5', 
+            'this_should not+be in the list' ]
+
 #get_nums only returns first instance of a number.
-    result=[ 'test','test','must_test4','must_test5','must_test6',  \
-          'ok_test_12_this_12','ok_test_14_this_14',  \
+    result=[ 'test','test', 'must_test4', 'must_test5', 'must_test6',  \
+          'ok_test_12_this_12', 'ok_test_14_this_14',  \
           'this_should_not_be_in_the_list' ]
 
-    self.assertTrue(result==sanitizeKeys(cfg_dict,lstt))
+    try:
+      self.assertTrue(result==sanitizeKeys(cfg_dict,lstt))
+    except AssertionError:
+      print('the lists:  \n\n')
+      print('result = \n'+str(result)+'\n\n')
+      print('\n\nsanitized = \n'+str(sanitizeKeys(cfg_dict,lstt)))
+      raise
 
   def test_get_nums(self):
     self.assertTrue(get_nums('  hi \n\n \" $','  hi  5')=='5')  
