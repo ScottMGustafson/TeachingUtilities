@@ -67,6 +67,7 @@ def sanitize(string,ishead=False):    #issue maybe with stray quotes....maybenot
   chars_to_erase = ['\"','\r','\n','\t']
   for item in chars_to_erase:  
     string = string.replace(item,'')
+  
 
   string = re.sub(r'\s+','_',((string.lower()).strip()))
   if ishead:
@@ -100,7 +101,14 @@ def sanitizeKeys(cfg_dict,lstt):
 
   for key, value in cfg_dict.iteritems():  
 #problem lies in here!!!  assignments still not mapping correctly
-    value = sanitize(value,True)
+    """if type(value) is str:
+      value = sanitize(value,True)
+    elif type(value) is list:
+      for item in value:
+        sanitize(value)
+    else:
+      raise AttributeError
+    """
     key = sanitize(key,True)
     if not '$' in key:  
       if value in lst:

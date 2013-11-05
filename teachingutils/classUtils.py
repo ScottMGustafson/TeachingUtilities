@@ -19,6 +19,11 @@ data_path, _ = os.path.split(os.path.abspath(__file__))
 data_path_lst = data_path.split(os.sep)
 data_path = (os.sep).join(data_path_lst[0:-1])
 data_path = os.path.join(data_path,'Data','data.cfg')
+try:
+  assert(os.path.isfile(data_path))
+except AssertionError:
+  print('exception reached.')
+  data_path = '/home/scott/programming/TeachingUtilities/Data/data.cfg'
 
 def read_config(filestream=open(data_path)):
   """
@@ -55,11 +60,25 @@ def read_config(filestream=open(data_path)):
         
   return cfg_dict
 
+class EmptyDict(Exception):
+  pass
+
+def getDict_hack():
+  try:
+    cfg_dict = read_config()
+    if len(cfg_dict) == 0:
+      raise EmptyDict
+  except EmptyDict:
+    cfg_dict = read_config(filestream=open('/home/scott/programming/TeachingUtilities/Data/data.cfg','r'))
+
+  return cfg_dict
+
 def getData(cfg_dict=read_config(), mySection=None,verbose=False):  #this code only works if csv.reader returns a list
   """
   input a csv file
   output a list of student instances
   """
+  cfg_dict = getDict_hack()
   try:
     assert(os.path.isfile(cfg_dict['csvfile'])) 
   except AssertionError:
@@ -95,7 +114,7 @@ def getData(cfg_dict=read_config(), mySection=None,verbose=False):  #this code o
     for row in gradeFile:
       if mySection in row:
         pupil=student._make([stringtools.sanitize(item) for item in row])   #a list counts as only one input...need to split it up
-        pupil = pupil._replace(section=numConvert(pupil.section))
+        pupil = pupil._replace(section=stringtools.numConvert(pupil.section))
         if verbose:
           print(pupil.section+mySection)
         if pupil.section == mySection:
