@@ -6,26 +6,73 @@ from collections import namedtuple
 from pkg_resources import resource_stream
 import stringtools
 
+class FileDNE(Exception):
+  def __init__(self,name):
+    self.name = name
+  def __str__(self):
+    return self.name+' does not exist'
+
+class EmptyDict(Exception):
+  def __str__(self):
+    return(' dict is empty')
+
+class TooManyArgs(Exception):
+  def __init__(self,expected=None,received=None,*args):
+    self.received = received
+    self.expected = expected
+    self.args = [item for item in args]
+  def __str__(self):
+    if self.expected and self.received:
+      return("\nexpected: "+repr(self.expected)+"\nreceived: "+repr(self.received)+"\n")  
+    elif self.received and self.expected is None:
+      return("\nreceived: "+repr(self.received)+"\n")
+    elif self.expected and self.received is None:
+      return("\nreceived: "+repr(self.expected)+"\n")
+    else:
+      return(repr(self.args))
+
+class BadFormatting(Exception):
+  def __init__(self,string):
+    self.string = string
+  def __str__(self):
+    return "Bad formatting in "+repr(string)
+    
+      
+
+def lenchecker(func):
+  def inner(*args,**kwargs):
+    try:
+      lst = func(*args,**kwargs)
+      if len(lst)==0:
+        raise EmptyDict
+    except EmptyDict:
+      raise
+    return lst
+  return inner
+
+
 def printFields(obj):
   """
   print all the fields.  This is useful when the object fields seem screwy
   """
   for name in obj._fields:
     print name
-
   return
 
-data_path, _ = os.path.split(os.path.abspath(__file__))
-data_path_lst = data_path.split(os.sep)
-data_path = (os.sep).join(data_path_lst[0:-1])
-data_path = os.path.join(data_path,'Data','data.cfg')
-try:
-  assert(os.path.isfile(data_path))
-except AssertionError:
-  print('exception reached.')
-  data_path = '/home/scott/programming/TeachingUtilities/Data/data.cfg'
+def defaultfilepath():
+  data_path, _ = os.path.split(os.path.abspath(__file__))
+  data_path_lst = data_path.split(os.sep)
+  data_path = (os.sep).join(data_path_lst[0:-1])
+  data_path = os.path.join(data_path,'Data','data.cfg')
+  try:
+    if not os.path.isfile(data_path):
+      raise FileDNE
+  except FileDNE:
+    raise
+  return data_path
 
-def read_config(filestream=open(data_path)):
+@lenchecker
+def read_config(filestream = resource_stream(__name__,'../Data/data.cfg')):
   """
   read the configuration file, by default data.cfg.
   returns a dict containing relevant config info.
@@ -35,11 +82,9 @@ def read_config(filestream=open(data_path)):
   for line in stringtools.non_blank(f):
     temp = line.split('::')
     if not '::' in line or len(temp)>2: 
-      print(line+'\nbad formatting: data.cfg')
-      exit()
+      raise BadFormatting(line)
     elif len(re.findall(r'\$',line.split()[1]))>1:
-      print(line+": should only have 1 \'$\' character.  please reformat.")
-      exit()
+      raise BadFormatting(line+": should only have 1 \'$\' character.")
       
     if 'mysections' in temp[0]:
       key = 'mysections'  
@@ -47,78 +92,43 @@ def read_config(filestream=open(data_path)):
     elif 'csvfile' in temp[0]:
       key = temp[0].strip()
       temp[1] = temp[1].strip()
-      try:
-        value = os.path.abspath(temp[1])
-        assert(os.path.isfile(value))
-      except AssertionError:
-        print(value+' does not exist...\n\n')
-        sys.exit()
+      value = os.path.abspath(temp[1])
+      assert(os.path.isfile(value))
     else:
       key  = stringtools.sanitize(temp[0])
       value= stringtools.sanitize(temp[1])
-    cfg_dict[key] = value
-        
+    cfg_dict[key] = value  
   return cfg_dict
+  
 
-class EmptyDict(Exception):
-  pass
-
-def getDict_hack():
-  try:
-    cfg_dict = read_config()
-    if len(cfg_dict) == 0:
-      raise EmptyDict
-  except EmptyDict:
-    cfg_dict = read_config(filestream=open('/home/scott/programming/TeachingUtilities/Data/data.cfg','r'))
-
-  return cfg_dict
 
 def getData(cfg_dict=read_config(), mySection=None,verbose=False):  #this code only works if csv.reader returns a list
   """
   input a csv file
   output a list of student instances
   """
-  cfg_dict = getDict_hack()
-  try:
-    assert(os.path.isfile(cfg_dict['csvfile'])) 
-  except AssertionError:
-    print('\n\n'+cfg_dict['csvfile']+' doesn\'t exist.')
-    exit()
-  except KeyError:
-    if cfg_dict is not None:
-      print(str(cfg_dict))
-    else:
-      print('cfg_dict is None')
-    raise
+
+  assert(os.path.isfile(cfg_dict['csvfile'])) 
   
   stringtools.stripExtraCommas(cfg_dict['csvfile'])
-  f = open(os.path.abspath(cfg_dict['csvfile']), 'r')
+  f = open(cfg_dict['csvfile'], 'r')
   gradeFile = list(csv.reader(f, delimiter=',', quotechar='\"'))
   assert(type(gradeFile)==list)
+
   head = stringtools.sanitizeKeys(cfg_dict,gradeFile[0])
-  try:
-    student = namedtuple('Student',head)  #student class factory
-  except ValueError:
-    print("error with header data:\n\n")
-    for item in head:
-      print(item)
-    print("\n\n")
-    raise
-  size = len(head)
-  del(gradeFile[0])   
+  assert(len(head)==6)
+  student = namedtuple('Student',head)  #student class factory  
 
   if mySection is None:  
-    return  [ student._make([stringtools.sanitize(item) for item in row]) for row in gradeFile ]
+    return  [ student._make([stringtools.sanitize(item) for item in row]) for row in gradeFile[1:] ]
+
   else:
     studentList = []
-    for row in gradeFile:
+    for row in gradeFile[1:]:
       if mySection in row:
         pupil=student._make([stringtools.sanitize(item) for item in row])   #a list counts as only one input...need to split it up
         pupil = pupil._replace(section=stringtools.numConvert(pupil.section))
-        if verbose:
-          print(pupil.section+mySection)
         if pupil.section == mySection:
           studentList.append(pupil)
-    #printFields(studentList[0])
     return(studentList)
 

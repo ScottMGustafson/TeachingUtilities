@@ -37,6 +37,8 @@ def stripExtraCommas(filename):
     strlist = string.split('\",\"')
     for i in range(0,len(strlist)):
       strlist[i] = strlist[i].replace(',','')
+      if i!=0 and i!=len(strlist[i]):
+        strlist[i] = strlist[i].replace('\"','')  #\" will continue to break code if in first or last element
     newdata.append('\",\"'.join(strlist))
   f.close()
 
@@ -68,7 +70,6 @@ def sanitize(string,ishead=False):    #issue maybe with stray quotes....maybenot
   for item in chars_to_erase:  
     string = string.replace(item,'')
   
-
   string = re.sub(r'\s+','_',((string.lower()).strip()))
   if ishead:
     string = re.sub(r'[^0-9a-zA-Z_\$\"]+','_',string)
@@ -76,8 +77,6 @@ def sanitize(string,ishead=False):    #issue maybe with stray quotes....maybenot
       string = 'N'+string
   else:
     string = re.sub(r'[^0-9a-zA-Z_\.\$\"]+','_',string)
-
-
   return re.sub(r'_+','_',string)   #  replace recurring instances of _ 
 
 def sanitizeList(lst,ishead=False):
@@ -101,14 +100,13 @@ def sanitizeKeys(cfg_dict,lstt):
 
   for key, value in cfg_dict.iteritems():  
 #problem lies in here!!!  assignments still not mapping correctly
-    """if type(value) is str:
+    if type(value) is str:
       value = sanitize(value,True)
     elif type(value) is list:
       for item in value:
-        sanitize(value)
+        sanitize(value,False)
     else:
-      raise AttributeError
-    """
+      pass
     key = sanitize(key,True)
     if not '$' in key:  
       if value in lst:
@@ -131,10 +129,6 @@ def rm_nums(string,specialChar='$'):
   """
   rm digits and any other special chars
   """
-  try:
-    assert(type(string) is str)
-  except AssertionError:
-    string = str(string)
   return re.sub(r'[0-9]+|\$+','',string)
 
 def rm_nums_replace(string):
@@ -153,14 +147,7 @@ def get_nums(var,raw,specialChar='$'):
 
   result1 = re.findall(r'[0-9]+|\$+',var)
   result2 = re.findall(r'[0-9]+|\$+',raw)
-
-  try:
-    assert(len(result1)==len(result2))
-  except AssertionError:
-    print("get_nums length error:\n")
-    print(var+" : "+str(result1))
-    print(raw+" : "+str(result2))
-    raise
+  assert(len(result1)==len(result2))
   try:
     ind  = result1.index('$')   #worries about this if #digits don't mach string digit number
     return result2[ind]
@@ -176,10 +163,6 @@ def numConvert(string):
 
   """
   string = re.sub(r'[^0-9\.]','',string)
-  string = string.split('.')[0]
-  try:
-    temp = int(string)
-  except:
-    print(string)
-    sys.exit()
-  return string
+  return string.split('.')[0]
+
+

@@ -10,7 +10,7 @@ Some functions to get relevant statistics
 
 
 def init(section):
-  cfg_dict=getDict_hack()
+  cfg_dict=read_config()
   #cfg_dict = read_config()
   lst = getData(cfg_dict,section)
   if lst is None or len(lst)==0:

@@ -16,7 +16,7 @@ setup(name='Teaching Utilites',
       author_email='s1gustaf@gmail.com',
       license='GNU GPL, version 2',
       packages=find_packages('teachingutils','Tests'),
-      package_dir = {'':'teachingutils','Tests':'teachingutils.Tests'},   # tell distutils packages are under src
+      package_dir = {'':'teachingutils','teachingutils/Tests':'teachingutils.Tests'},   # tell distutils packages are under src
       install_requires=[
           'scipy', 'numpy'
       ],

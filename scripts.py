@@ -11,7 +11,7 @@ def assign_seats(sections=None):
   reads input data and then runs seat_randomizer
   """
 
-  cfg_dict = getDict_hack()
+  cfg_dict = read_config()
   try:
     if sections is None:  
       sections = cfg_dict["mysections"] 

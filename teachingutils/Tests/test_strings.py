@@ -52,14 +52,14 @@ class stringTest(unittest.TestCase):
     try:
       self.assertTrue(result==sanitizeKeys(cfg_dict,lstt))
     except AssertionError:
-      print('the lists:  \n\n')
-      print('result = \n'+str(result)+'\n\n')
-      print('\n\nsanitized = \n'+str(sanitizeKeys(cfg_dict,lstt)))
+      #print('AssertionError:  \nthe lists:  \n\n')
+      #print('result = \n'+str(result)+'\n\n')
+      #print('\n\nsanitized = \n'+str(sanitizeKeys(cfg_dict,lstt)))
       raise
 
   def test_get_nums(self):
     self.assertTrue(get_nums('  hi \n\n \" $','  hi  5')=='5')  
 
 
-
+######got it!!!  extra \" breaks the csv file!!!! arg!!!
 
