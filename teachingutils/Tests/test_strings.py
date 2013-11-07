@@ -10,12 +10,16 @@ class stringTest(unittest.TestCase):
     pass
 
   def test_sanitize(self):
-    #test how it sanitizes the head data
-    self.assertTrue(sanitize("\",\"     + ...   *LAst     nAME \"\'##$",True)=='_last_name$')
-    #and the body data
-    self.assertTrue(sanitize("\",\"     + ...   *LAst  .   nA.ME \"\'##$",False)=='_last_._na.me$')
-    #check that these special chars are erased
-    self.assertTrue(sanitize("\r\n\n\n  lastNaMe  \t\"\"\"")=='lastname')
+
+    test1 = sanitize("\",\"     + ...   *LAst     nAME \"\'##$",True)    
+    test2 = sanitize("\",\"     + ...   *LAst  .   nA.ME \"\'##$",False)
+    test3 = sanitize("\r\n\n\n  lastNaMe  \t\"\"\"")
+    test4 = sanitize(["a","list","he%%re"],True)
+
+    self.assertTrue(test1=='N_last_name_$',test1)  #prepend with N, replace weird chars with _ except for $
+    self.assertTrue(test2=='_..._last_._na.me_$',test2) #all weird chars replaced except . and $
+    self.assertTrue(test3=='lastname',test3)  #check special line characteristic chars
+    self.assertTrue(test4==['a','list','he_re'],test4)
 
   def test_generator(self):
     lst = [0,'hey','dont','test','include','test','test','me',True,False,1.2,'test']
@@ -35,8 +39,8 @@ class stringTest(unittest.TestCase):
                 'must test$':'the \"\" value  $',
                 'ok.test $  this $':'this (  $  value$'}
 
-    lstt = ['  [2345234  & ;; value',
-            '  [2345234  & ;; value',    
+    lstt = ['  [2345234 ;; value',  
+            '  [2345234 ;; value', 
             'the \"\"\n\r value 4',
             'the \"\" value   5',
             'the \"\"{ value  6',
@@ -52,9 +56,14 @@ class stringTest(unittest.TestCase):
     try:
       self.assertTrue(result==sanitizeKeys(cfg_dict,lstt))
     except AssertionError:
-      #print('AssertionError:  \nthe lists:  \n\n')
-      #print('result = \n'+str(result)+'\n\n')
-      #print('\n\nsanitized = \n'+str(sanitizeKeys(cfg_dict,lstt)))
+      print("\nlstt:")
+      print(lstt)
+      print("\ncfg_dict")
+      print(cfg_dict)
+      print("\nresult:")
+      print(result)
+      print("\nsanitized dict:")
+      print(sanitizeKeys(cfg_dict,lstt))
       raise
 
   def test_get_nums(self):

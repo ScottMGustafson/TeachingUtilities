@@ -66,6 +66,10 @@ def sanitize(string,ishead=False):    #issue maybe with stray quotes....maybenot
   to fix this, append 'N' to front.  (name doesn't matter since this item)
   will never get used anyway.
   """
+
+  if type(string) is list:
+    return[sanitize(item,ishead) for item in string]
+
   chars_to_erase = ['\"','\r','\n','\t']
   for item in chars_to_erase:  
     string = string.replace(item,'')
@@ -79,8 +83,19 @@ def sanitize(string,ishead=False):    #issue maybe with stray quotes....maybenot
     string = re.sub(r'[^0-9a-zA-Z_\.\$\"]+','_',string)
   return re.sub(r'_+','_',string)   #  replace recurring instances of _ 
 
-def sanitizeList(lst,ishead=False):
-  return [ sanitize(item,ishead) for item in lst  ]
+def sanitizeDict(a_dict,ishead=True):
+  vals = []
+  keys = []
+  new_dict = {}
+  for key, val in a_dict.iteritems():
+    keys.append(sanitize(key,ishead))
+    vals.append(sanitize(val,ishead))
+  
+  for i in range(0,len(keys)):
+    new_dict[keys[i]] = vals[i]
+
+  return new_dict  
+
 
 def indices(lst,value):
   for i, x in enumerate(lst):
@@ -96,18 +111,11 @@ def sanitizeKeys(cfg_dict,lstt):
   lst is incoming header data
   """
 
-  lst = [sanitize(item,True) for item in lstt]
+  lst = sanitize(lstt,True)
+  cfg_dict = sanitizeDict(cfg_dict,True)
 
   for key, value in cfg_dict.iteritems():  
 #problem lies in here!!!  assignments still not mapping correctly
-    if type(value) is str:
-      value = sanitize(value,True)
-    elif type(value) is list:
-      for item in value:
-        sanitize(value,False)
-    else:
-      pass
-    key = sanitize(key,True)
     if not '$' in key:  
       if value in lst:
         lst[lst.index(value)] = key
