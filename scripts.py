@@ -12,6 +12,7 @@ def assign_seats(sections=None):
   """
 
   cfg_dict = read_config()
+  assert(len(cfg_dict.keys())>0)
   try:
     if sections is None:  
       sections = cfg_dict["mysections"] 
@@ -37,7 +38,7 @@ def assign_seats(sections=None):
   return
 
 def printScores(assignments,sections=None):
-  cfg_dict = getDict_hack()
+  cfg_dict = read_config()
   if sections is None:
     sections = cfg_dict['mysections']
   for section in sections:
@@ -99,7 +100,7 @@ def runAll():
 
   #getuname()
   assign_seats() 
-  printScores( ['quiz05', 'prelab05', 'inlab05', 'conclusion04'] )
+  printScores( ['quiz06', 'prelab06', 'inlab06', 'conclusion05'] )
 
 if __name__ == '__main__':
   runAll()

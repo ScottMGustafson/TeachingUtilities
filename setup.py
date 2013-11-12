@@ -14,9 +14,11 @@ setup(name='Teaching Utilites',
       url='http://github.com/astroScott/TeachingUtilities',
       author='Scott Gustafson',
       author_email='s1gustaf@gmail.com',
-      license='GNU GPL, version 2',
-      packages=find_packages('teachingutils','Tests'),
-      package_dir = {'':'teachingutils','teachingutils/Tests':'teachingutils.Tests'},   # tell distutils packages are under src
+      license='GNU GPL, version 2'
+      packages=find_packages('teachingutils','Tests','Data'),
+      package_dir = {'':'teachingutils',
+                     'teachingutils/Tests':'teachingutils.Tests',
+                     'teachingutils/Data':'teachingutils.Data'},   # tell distutils packages are under src
       install_requires=[
           'scipy', 'numpy'
       ],
