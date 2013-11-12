@@ -10,7 +10,6 @@ def assign_seats(sections=None):
   """
   reads input data and then runs seat_randomizer
   """
-
   cfg_dict = read_config()
   assert(len(cfg_dict.keys())>0)
   try:
@@ -27,18 +26,17 @@ def assign_seats(sections=None):
   except ValueError:
     print('\nvalues for seats and tables must be ints.\n\n')
     raise
+
   for item in sections:
     studentList = getData(cfg_dict,item)
-    assert(len(studentList)>0)
-    assert(tables!=0)
-    assert(seats!=0)
+    assert(len(studentList)>0 and tables!=0 and seats!=0)
     print(item+" "+str(len(studentList)))
     seat_randomizer(item,studentList,tables,seats,filename=str(item)+".txt")
 
   return
 
 def printScores(assignments,sections=None):
-  cfg_dict = read_config()
+  _, cfg_dict = init_it()
   if sections is None:
     sections = cfg_dict['mysections']
   for section in sections:
@@ -56,8 +54,7 @@ def printScores(assignments,sections=None):
 
 def getuname(sections=None,ext="@ucsd.edu"):
   """print out email friendly comma-separated string of all email addresses"""
-  cfg_dict = read_config()
-  #cfg_dict = getDict_hack()
+  studentList, cfg_dict = init_it()
   if sections is None:  
     try:
       sections = cfg_dict["mysections"]
@@ -69,24 +66,14 @@ def getuname(sections=None,ext="@ucsd.edu"):
       raise
   for section in sections:
     print("\n\n  "+str(section))
-    studentList = getData(mySection=section)
     string = ''
     for item in studentList:
       string+=item.username+ext+","
     print(string)
 
-from matplotlib.pylab import *
-
-def plotStats(data,maxVal):
-  binsize = float(maxVal)/20.
-  n, bins, patches = hist(data, bins=25, histtype='bar')
-  setp(patches, 'facecolor', 'g', 'alpha', 0.75)
-  x = [val for val in range(0,int(maxVal),int(binsize)) ]
-  figure()
-  show()
   
 def getTotals(section):
-  studentlist, cfg_dict = init(section)
+  studentlist, cfg_dict = init_it(section)
   print len(studentlist)
   data = []
   for student in studentlist:
@@ -97,10 +84,10 @@ def runAll():
   """
   just an example of how to run a few of these functions
   """
-
+  #students, cfg_dict= init_it()
   #getuname()
   assign_seats() 
-  printScores( ['quiz06', 'prelab06', 'inlab06', 'conclusion05'] )
+  #printScores(['quiz06', 'prelab06', 'inlab06', 'conclusion05'] )
 
 if __name__ == '__main__':
   runAll()

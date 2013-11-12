@@ -1,5 +1,5 @@
 import csv
-from sys import exit
+import sys
 import re
 import os
 from collections import namedtuple
@@ -50,10 +50,7 @@ def lenchecker(func):
   def inner(*args,**kwargs):
     lst = func(*args,**kwargs)
     if type(lst) is dict:
-      if len(lst.keys())==0: 
-        print("\n\n"+repr(lst))
-        print("is empty\n\n")
-        raise EmptyDict
+      if len(lst.keys())==0: raise EmptyDict
     elif type(lst) is list:
       if len(lst)==0: raise EmptyList
     elif type(lst) is str:
@@ -70,7 +67,7 @@ def printFields(obj):
     print name
   return
 
-def defaultfilepath(cfgpath=os.path.join('Data','data.cfg')):
+def defaultfilepath(cfgpath=os.path.join('Data','data.cfg')):  #is this a source of issues?
   """get the path to the default location for the data directory"""
   data_path, _ = os.path.split(__file__)
   data_path_lst = data_path.split(os.sep)
@@ -83,50 +80,47 @@ def defaultfilepath(cfgpath=os.path.join('Data','data.cfg')):
     raise
   return data_path
 
-#@lenchecker
+@lenchecker
 def read_config(filestream = open(defaultfilepath())):
   """
   read the configuration file, by default data.cfg.
   returns a dict containing relevant config info.
   """
   cfg_dict = {}
-  f = filestream
-  for line in stringtools.non_blank(f):
-    temp = line.split('::')
-    if not '::' in line or len(temp)>2: 
-      raise BadFormatting(line)
-    elif len(re.findall(r'\$',line.split()[1]))>1:
-      raise BadFormatting(line+": should only have 1 \'$\' character.")   
-    elif 'mysections' in temp[0]:
-      key = 'mysections'  
-      value=[item.strip() for item in temp[1].split(',')]
-    elif 'csvfile' in temp[0]:
-      key = temp[0].strip()
-      temp[1] = temp[1].strip()
-      value = os.path.abspath(temp[1])
+  for line in stringtools.non_blank(filestream):
+    key, value = line.split('::')
+    if 'mysections' in key:
+      key = 'mysections' 
+      value=[item.strip() for item in value.split(',')]
+    elif 'csvfile' in key:
+      key = 'csvfile'
+      value = os.path.abspath(value.strip())
       assert(os.path.isfile(value))
     else:
-      key  = stringtools.sanitize(temp[0])
-      value= stringtools.sanitize(temp[1])
+      key  = stringtools.sanitize(key)
+      value= stringtools.sanitize(value)
     cfg_dict[key] = value  
-  print cfg_dict
+
+  print("\n\n\n")
+  print(cfg_dict)
   return cfg_dict
   
-def getData(cfg_dict=read_config(), mySection=None,verbose=False):  #this code only works if csv.reader returns a list
+def getData(cfg_dict=None, mySection=None,verbose=False):  #this code only works if csv.reader returns a list
   """
   input a csv file
   output a list of student instances
   """
+  if cfg_dict is None:
+    cfg_dict = read_config()
+  else:
+    assert(type(cfg_dict) is dict)
+    assert(type(mySection) is str)
 
-  assert(os.path.isfile(cfg_dict['csvfile'])) 
-  
+  assert(type(cfg_dict) is dict)
   stringtools.stripExtraCommas(cfg_dict['csvfile'])
   f = open(cfg_dict['csvfile'], 'r')
   gradeFile = list(csv.reader(f, delimiter=',', quotechar='\"'))
-  assert(type(gradeFile)==list)
-
   head = stringtools.sanitizeKeys(cfg_dict,gradeFile[0])
-  assert(len(head)==6)
   student = namedtuple('Student',head)  #student class factory  
 
   if mySection is None:  
@@ -141,4 +135,17 @@ def getData(cfg_dict=read_config(), mySection=None,verbose=False):  #this code o
         if pupil.section == mySection:
           studentList.append(pupil)
     return(studentList)
+
+def init_it(section=None):
+  print("running")
+  cfgdict = read_config()
+  if section is None:
+    lst = []
+    for item in cfgdict["mysections"]:
+      lst+=getData(cfg_dict=cfgdicct,mySection=item)
+  else:
+    lst = getData(cfg_dict=cfgdict,mySection=section)
+  if len(lst)==0: 
+    raise EmptyList("student list is empty for section "+str(item))
+  return lst, cfgdict
 

@@ -9,22 +9,14 @@ Some functions to get relevant statistics
 """
 
 
-def init(section):
-  cfg_dict=read_config()
-  #cfg_dict = read_config()
-  lst = getData(cfg_dict,section)
-  if lst is None or len(lst)==0:
-    print(str(section)+" has no students")
-    exit()
-  else:
-    return lst, cfg_dict
+
 
 def getStats(assignment,section):
   """
   input:  assignment name (str), section number
   output: tuple of (mean, stdev).  returns None on failure
   """
-  studentlist, cfg_dict = init(section)
+  studentlist, cfg_dict = init_it(section)
   try:
     assert(isassn(cfg_dict,assignment))
   except AssertionError:
@@ -74,7 +66,7 @@ def getOverallStats(section):
   input:  section
   output:  tuple of (mean, stdev)
   """
-  lst, cfg_dict = init(section)
+  lst, cfg_dict = init_it(section)
   data = []
   for item in lst:
     data.append(getTotal(item,cfg_dict))

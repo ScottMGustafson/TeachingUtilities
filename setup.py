@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 def readme():
-    with open('README.md') as f:
+    with open('README.md') as f: 
         return f.read()
 
 setup(name='Teaching Utilites',
@@ -14,11 +14,10 @@ setup(name='Teaching Utilites',
       url='http://github.com/astroScott/TeachingUtilities',
       author='Scott Gustafson',
       author_email='s1gustaf@gmail.com',
-      license='GNU GPL, version 2'
-      packages=find_packages('teachingutils','Tests','Data'),
+      license='GNU GPL, version 2',
+      packages=find_packages('teachingutils','Tests'),
       package_dir = {'':'teachingutils',
-                     'teachingutils/Tests':'teachingutils.Tests',
-                     'teachingutils/Data':'teachingutils.Data'},   # tell distutils packages are under src
+                     'teachingutils/Tests':'teachingutils.Tests'},   # tell distutils packages are under src
       install_requires=[
           'scipy', 'numpy'
       ],

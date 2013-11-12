@@ -41,11 +41,3 @@ class DataTest(unittest.TestCase):
     for item in testList:
       self.assertEqual(len(item._fields),6)
 
-  def test_lenchecker(self):
-    func1 = lenchecker([1,2,3])
-    func2 = lenchecker({1:2,2:3,4:5})
-    func3 = lenchecker("hi!")
-
-    self.assertRaises()
-    self.assert
-
