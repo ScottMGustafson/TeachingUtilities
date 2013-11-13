@@ -1,6 +1,7 @@
 from teachingutils.classUtils import *
 from teachingutils.seat_randomizer import *
 from teachingutils.stats import *
+from teachingutils.error import *
 
 """
 a few other functions that may be useful as well as a main() function to 
@@ -36,10 +37,7 @@ def assign_seats(sections=None):
   return
 
 def printScores(assignments,sections=None):
-  _, cfg_dict = init_it()
-  if sections is None:
-    sections = cfg_dict['mysections']
-  for section in sections:
+  for section in list(sections):
     print("\nsection: "+str(section))
     print("===========================================")
     for assignment in assignments:
@@ -87,7 +85,7 @@ def runAll():
   #students, cfg_dict= init_it()
   #getuname()
   assign_seats() 
-  #printScores(['quiz06', 'prelab06', 'inlab06', 'conclusion05'] )
+  printScores(['quiz06', 'prelab06', 'inlab06', 'conclusion05'],[784952, 784964])
 
 if __name__ == '__main__':
   runAll()

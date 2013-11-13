@@ -7,10 +7,6 @@ from sys import exit
 """
 Some functions to get relevant statistics
 """
-
-
-
-
 def getStats(assignment,section):
   """
   input:  assignment name (str), section number
@@ -25,37 +21,32 @@ def getStats(assignment,section):
   except:
     raise
   data = []
+
+
   for item in studentlist:
-
-    try:
-      temp = getattr(item, assignment)
-    except:
-      for name in item._fields:
-        if assignment==name:
-          print "the offending value: "+name+" = "+getattr(item,name)
-      raise
-
+    temp = item[assignment]
     try:
       data.append(float(temp))
     except ValueError:  #item is presumably None
       if temp is None or temp=='':
         pass
       else:
-        print(temp)
+        print(assignment+": "+str(temp))
         raise
 
   return np.mean(data), np.std(data)
-
+  
 def getAssignments(cfg_dict):
-  """from cfg_dict returns a list of those keys that are assignments"""
   assn = []
   for item in cfg_dict.keys():
     if "$" in item:
       assn.append(item)
   return assn
-  
+
 def isassn(cfg_dict,string):
   """tests if a given string is an assignment.  returns True if it is"""
+
+  
   if rm_nums_replace(string) in getAssignments(cfg_dict):
     return True
   else:
@@ -70,7 +61,11 @@ def getOverallStats(section):
   data = []
   for item in lst:
     data.append(getTotal(item,cfg_dict))
-  return np.mean(data),np.std(data)
+  try:
+    return np.mean(data),np.std(data)
+  except:
+    print data
+    raise
 
 def getTotal(student,cfg_dict):
   """
@@ -85,18 +80,12 @@ def getTotal(student,cfg_dict):
   score summed over all assignments
   
   """
-  summ=0
-  for name in student._fields:
-    if isassn(cfg_dict,name):
-      try:      
-        summ+=float(getattr(student,name))
-      except ValueError:
-        try:
-          assert(isassn(cfg_dict,name))
-        except AssertionError:
-          print(name+" is not an assignment, but should be.")  
-          raise  
-      except:
-        raise
+  summ = 0.
+  for item in student.keys():
+    if isassn(cfg_dict,item):
+      try:
+        summ+=float(student[item])
+      except ValueError, TypeError:
+        pass
   return summ
   

@@ -1,6 +1,7 @@
 import os
 import sys
 from classUtils import *
+from error import *
 from random import shuffle
 
 class _Seat(object):
@@ -8,14 +9,8 @@ class _Seat(object):
     self.table = table
     self.seat = seat
     self.student=student
-  def studentString(self):
-    try:
-      return self.student.firstname+' '+self.student.lastname
-    except AttributeError:  #so hacky!!  need to fix underlying problem.
-      print '\n\n  ERROR \n'
-      printFields(self.student)
-      return self.student.firstname+' '+self.student.N_last_name
-
+  def __str__(self):
+    return self.student['firstname']+' '+self.student['lastname']
 
 def seat_randomizer(section,student_list,tables,seats,filename="seating.txt"):
   """
@@ -45,7 +40,7 @@ def seat_randomizer(section,student_list,tables,seats,filename="seating.txt"):
     for j in range(0,seats):
       for item in seatList:
         if item.table == i and item.seat == j:
-          f.write(item.studentString()+"\n")
+          f.write(str(item)+"\n")
         else:
           pass    
   f.close() 

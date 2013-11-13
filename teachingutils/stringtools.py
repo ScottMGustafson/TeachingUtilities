@@ -1,11 +1,12 @@
 import re
+from teachingutils.error import EmptyString
+from string import printable
 
 
 """
 this module includes various functions for taking data from csv into a usable 
 form for the rest of this code.  the core thing here is getData() which parses 
 data into a list of students.
-
 """
 
 def extraComma(string):
@@ -33,12 +34,11 @@ def stripExtraCommas(filename):
   f = open(filename,'r')
   data = f.readlines()
   newdata = []
+  data = data.replace(',\"\n\"',',\"\"\n\"')
   for string in data:
     strlist = string.split('\",\"')
     for i in range(0,len(strlist)):
       strlist[i] = strlist[i].replace(',','')
-      if i!=0 and i!=len(strlist[i]):
-        strlist[i] = strlist[i].replace('\"','')  #\" will continue to break code if in first or last element
     newdata.append('\",\"'.join(strlist))
   f.close()
 
@@ -70,17 +70,17 @@ def sanitize(string,ishead=False):    #issue maybe with stray quotes....maybenot
   if type(string) is list:
     return[sanitize(item,ishead) for item in string]
 
-  chars_to_erase = ['\"','\r','\n','\t']
-  for item in chars_to_erase:  
-    string = string.replace(item,'')
+  if string == '': return '' if not ishead else 'NULL'
   
+
+  string = re.sub("[^{}]+".format(printable), "", string)
   string = re.sub(r'\s+','_',((string.lower()).strip()))
   if ishead:
-    string = re.sub(r'[^0-9a-zA-Z_\$\"]+','_',string)
+    string = re.sub(r'[^0-9a-zA-Z_\$]+','_',string)
     if string[0].isdigit() or string[0]=='_':
       string = 'N'+string
   else:
-    string = re.sub(r'[^0-9a-zA-Z_\.\$\"]+','_',string)
+    string = re.sub(r'[^0-9a-zA-Z_\.\$]+','_',string)
   return re.sub(r'_+','_',string)   #  replace recurring instances of _ 
 
 def sanitizeDict(a_dict,ishead=True):
@@ -92,6 +92,8 @@ def sanitizeDict(a_dict,ishead=True):
     vals.append(sanitize(val,ishead))
   
   for i in range(0,len(keys)):
+    if keys[i]=='':  keys[i]=='NULL'
+    if vals[i]=='':  vals[i]=='NULL'
     new_dict[keys[i]] = vals[i]
 
   return new_dict  
@@ -110,28 +112,32 @@ def sanitizeKeys(cfg_dict,lstt):
   sanitize all strings to pure alphanumeric or underscores.
   lst is incoming header data
   """
-
-  lst = sanitize(lstt,True)
   cfg_dict = sanitizeDict(cfg_dict,True)
+  if type(lstt) is list:
+    for item in lstt:
+      try:
+        assert(item!='')
+      except AssertionError:
+        raise EmptyString(repr(lstt))
+    lst = sanitize(lstt,True)
 
-  for key, value in cfg_dict.iteritems():  
-#problem lies in here!!!  assignments still not mapping correctly
-    if not '$' in key:  
-      if value in lst:
-        lst[lst.index(value)] = key
-      else:
-        continue
-
-    else:
-      for j in indices(lst,value):  #for every element of the header that we care about...
-        #y = lst[j][:len(value)] if len(value)<len(lst[j]) else lst[j]  # why this?
-        y = lst[j]        
-        num = get_nums(value,y)
-        if num is None: 
+    for key, value in cfg_dict.iteritems():  
+      if not '$' in key:  
+        if value in lst:
+          lst[lst.index(value)] = key
+        else:
           continue
-        newKey = key.replace('$',str(num))
-        lst[j] = newKey
-  return lst
+
+      else:
+        for j in indices(lst,value):  #for every element of the header that we care about...
+          #y = lst[j][:len(value)] if len(value)<len(lst[j]) else lst[j]  # why this?
+          y = lst[j]        
+          num = get_nums(value,y)
+          if num is None: 
+            continue
+          newKey = key.replace('$',str(num))
+          lst[j] = newKey
+    return lst
 
 def rm_nums(string,specialChar='$'):
   """

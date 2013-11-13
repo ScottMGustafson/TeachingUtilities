@@ -20,6 +20,10 @@ class stringTest(unittest.TestCase):
     self.assertTrue(test2=='_..._last_._na.me_$',test2) #all weird chars replaced except . and $
     self.assertTrue(test3=='lastname',test3)  #check special line characteristic chars
     self.assertTrue(test4==['a','list','he_re'],test4)
+    self.assertTrue(sanitize('\n')=='')
+    self.assertTrue(sanitize('\ntest')=='test')
+    self.assertTrue(sanitize('',False)=='')
+    self.assertTrue(sanitize('',True)=='NULL')
 
   def test_generator(self):
     lst = [0,'hey','dont','test','include','test','test','me',True,False,1.2,'test']
