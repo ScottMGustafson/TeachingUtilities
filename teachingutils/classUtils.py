@@ -48,7 +48,7 @@ def getData(cfg_dict=None, mySection=None,verbose=False):  #this code only works
   output a list of student instances
   """
   if not cfg_dict: cfg_dict = read_config()
-  #stringtools.stripExtraCommas(cfg_dict['csvfile'])
+  stringtools.stripExtraCommas(cfg_dict['csvfile'])
   gradeFile = csv.DictReader(open(cfg_dict['csvfile']), delimiter=',', quotechar='\"')
 
   old_keys = gradeFile.fieldnames

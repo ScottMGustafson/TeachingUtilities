@@ -34,8 +34,9 @@ def stripExtraCommas(filename):
   f = open(filename,'r')
   data = f.readlines()
   newdata = []
-  data = data.replace(',\"\n\"',',\"\"\n\"')
+
   for string in data:
+    string = string.replace(',\"\n\"',',\"\"\n\"')
     strlist = string.split('\",\"')
     for i in range(0,len(strlist)):
       strlist[i] = strlist[i].replace(',','')
