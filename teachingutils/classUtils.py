@@ -86,7 +86,7 @@ def init_it(section=None):
   if section is None:
     lst = []
     for item in cfgdict["mysections"]:
-      lst+=getData(cfg_dict=cfgdicct,mySection=item)
+      lst+=getData(cfg_dict=cfgdict,mySection=item)
   else:
     lst = getData(cfg_dict=cfgdict,mySection=section)
   if len(lst)==0: 

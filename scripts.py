@@ -39,13 +39,13 @@ def assign_seats(sections=None):
 
 def printScores(assignments,sections=None):
   for section in list(sections):
-    string = "\nsection: "+str(section)+"\n===========================================\n")
+    string = "\nsection: "+str(section)+"\n===========================================\n"
     for assignment in assignments:
       scores = getStats(assignment,section)
-      string += "  %(asgn)-12s  %(mean)-6.3lf  +/-  %(std)-6.3lf"%{'asgn':assignment, 'mean':scores[0], 'std':scores[1]}
+      string += "  %(asgn)-12s  %(mean)-6.3lf  +/-  %(std)-6.3lf\n"%{'asgn':assignment, 'mean':scores[0], 'std':scores[1]}
     scores = getOverallStats(section)
-    string+="-------------------------------------------"
-    string+="  totals:       %(mean)-6.3lf  +/-  %(std)-6.3lf"%{'mean':scores[0], 'std':scores[1]}
+    string+="-------------------------------------------\n"
+    string+="  totals:       %(mean)-6.3lf  +/-  %(std)-6.3lf\n"%{'mean':scores[0], 'std':scores[1]}
   return string
 
 
@@ -79,7 +79,6 @@ def send_email(to,server,subject,message,port=None):
   if len(failed_sent)>0:
     print 'these emails failed:'+repr(failed_sent)
 
-      
   smtpserver.close()
 
 def getuname(sections=None):
@@ -100,8 +99,8 @@ def getuname(sections=None):
     string = ''
     unames = []
     for item in studentList:
-      string+=item.username+ext+","
-      unames.append(item.username+ext)
+      string+=item["username"]+ext+","
+      unames.append(item["username"]+ext)
     print(string)
 
     return unames
@@ -119,12 +118,13 @@ def runAll():
   just an example of how to run a few of these functions
   """
   #students, cfg_dict= init_it()
-  unames = getuname()
+  #unames = getuname()
   assign_seats() 
-  text = printScores(['quiz08', 'prelab08', 'inlab08', 'conclusion07'],[784952, 784964])
+  #text = printScores(['quiz09', 'prelab09', 'inlab09', 'conclusion08'],[784952, 784964])
+  text = printScores(['quiz09', 'prelab09', 'inlab09', 'conclusion08'],[784952])
   print text
-  email_subject=" "
-  email_body=text
+  #email_subject=" "
+  #email_body=text
   #send_email(unames,cfg_dict['emailserver']email_subject,email_body)
 
 if __name__ == '__main__':
