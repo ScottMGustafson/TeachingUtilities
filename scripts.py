@@ -8,11 +8,14 @@ import smtplib
 a few other functions that may be useful as well as a main() function to 
 put things together if so desired.
 """
+
+students, cfg_dict= init_it()  #define these for the rest of the functions here
+
 def assign_seats(sections=None):
   """
   reads input data and then runs seat_randomizer
   """
-  cfg_dict = read_config()
+  #cfg_dict = read_config()
   assert(len(cfg_dict.keys())>0)
   try:
     if sections is None:  
@@ -30,10 +33,10 @@ def assign_seats(sections=None):
     raise
 
   for item in sections:
-    studentList = getData(cfg_dict,item)
-    assert(len(studentList)>0 and tables!=0 and seats!=0)
-    print(item+" "+str(len(studentList)))
-    seat_randomizer(item,studentList,tables,seats,filename=str(item)+".txt")
+    students = getData(cfg_dict,item)
+    assert(len(students)>0 and tables!=0 and seats!=0)
+    print(item+" "+str(len(students)))
+    seat_randomizer(item,students,tables,seats,filename=str(item)+".txt")
 
   return
 
@@ -48,12 +51,6 @@ def printScores(assignments,sections=None):
     string+="  totals:       %(mean)-6.3lf  +/-  %(std)-6.3lf\n"%{'mean':scores[0], 'std':scores[1]}
   return string
 
-def check_email():
-  message = open("email_text.txt").read()
-
-  yn = raw_input("is this what you want to send? (y/n)")
-  return message if yn=='y' else False
-
 def send_email(to,server,port_num=None):
   """
   sends an email.  port defaults to None (smtp defaults as 25)
@@ -64,13 +61,12 @@ def send_email(to,server,port_num=None):
   except:
     port = None
     
-  message = open("Data/email_text.txt").read()
+  message = open(cfg_dict["emailtext"]).read()
   print "\nrecipients = "+str(to)
   print "\n"+message
   yn = raw_input("is this what you want to send? (y/n)")
   if yn!='y':
     return
-
 
   try:
     smtpserver = smtplib.SMTP(server,port)
@@ -111,7 +107,6 @@ def send_email(to,server,port_num=None):
 
 def getuname(sections=None):
   """print out email friendly comma-separated string of all email addresses"""
-  studentList, cfg_dict = init_it()
   unames = []
   if sections is None:  
     try:
@@ -124,7 +119,7 @@ def getuname(sections=None):
       raise
   ext = cfg_dict['emailext']
   for section in sections:
-    studentList, cfg_dict = init_it(section)
+    studentList = init_it(section)[0]
     string = ''
     for item in studentList:
       string+=item["username"]+"@"+ext+","
@@ -133,25 +128,21 @@ def getuname(sections=None):
   return unames
   
 def getTotals(section):
-  studentlist, cfg_dict = init_it(section)
+  studentlist = init_it(section)[0]
   print len(studentlist)
   data = []
   for student in studentlist:
     data.append(getTotal(student,cfg_dict))
   return data
 
-def runAll():
-  """
-  just an example of how to run a few of these functions
-  """
-  students, cfg_dict= init_it()
+"""
+just an example of how to run a few of these functions
+"""
+assign_seats() 
+#text = printScores(['quiz09', 'prelab09', 'inlab09', 'conclusion08'],[784952, 784964])
+#text = printScores(['quiz09', 'prelab09', 'inlab09', 'conclusion08'],[784952])
+unames = getuname(cfg_dict['mysections'])
+send_email(unames+['s1gustaf@physics.ucsd.edu'],cfg_dict['smtpserver'],cfg_dict["port"])
 
-  assign_seats() 
-  #text = printScores(['quiz09', 'prelab09', 'inlab09', 'conclusion08'],[784952, 784964])
-  #text = printScores(['quiz09', 'prelab09', 'inlab09', 'conclusion08'],[784952])
-  unames = getuname(cfg_dict['mysections'])
-  send_email(unames+['s1gustaf@physics.ucsd.edu'],cfg_dict['smtpserver'],cfg_dict["port"])
-if __name__ == '__main__':
-  runAll()
       
     

@@ -36,6 +36,10 @@ def read_config(filestream = open(defaultfilepath())):
       key = 'csvfile'
       value = os.path.abspath(value.strip())
       assert(os.path.isfile(value))
+    elif 'email_text' in key:
+      key = 'emailtext'
+      value = os.path.abspath(value.strip())
+      assert(os.path.isfile(value))
     else:
       key  = stringtools.sanitize(key)
       value= stringtools.sanitize(value)
