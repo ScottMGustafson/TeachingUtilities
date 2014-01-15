@@ -70,8 +70,12 @@ def getData(cfg_dict=None, mySection=None,verbose=False):  #this code only works
     if mySection is not None:
       try:
         tmp1 = int(mySection)
-        tmp2 = int(row['section'])
-      except ValueError:
+        if row['section'] is None:   #this will happen when a student has no listed section
+          continue
+          #raise Exception("section is NoneType...check config data")
+        else:
+          tmp2 = int(row['section'])
+      except ValueError, TypeError:
         tmp1 = stringtools.numConvert(str(mySection))
         tmp2 = stringtools.numConvert(str(row['section']))
       if tmp1==tmp2:

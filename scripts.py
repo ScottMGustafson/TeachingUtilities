@@ -48,42 +48,71 @@ def printScores(assignments,sections=None):
     string+="  totals:       %(mean)-6.3lf  +/-  %(std)-6.3lf\n"%{'mean':scores[0], 'std':scores[1]}
   return string
 
+def check_email():
+  message = open("email_text.txt").read()
 
+  yn = raw_input("is this what you want to send? (y/n)")
+  return message if yn=='y' else False
 
-def send_email(to,server,subject,message,port=None):
+def send_email(to,server,port_num=None):
   """
   sends an email.  port defaults to None (smtp defaults as 25)
   """
-  user = raw_input('username:')
-  pswd = raw_input('password:')
-  smtpserver = smtplib.SMTP(server,port)
+
+  try:
+    port = int(port_num)
+  except:
+    port = None
+    
+  message = open("Data/email_text.txt").read()
+  print "\nrecipients = "+str(to)
+  print "\n"+message
+  yn = raw_input("is this what you want to send? (y/n)")
+  if yn!='y':
+    return
+
+
+  try:
+    smtpserver = smtplib.SMTP(server,port)
+  except:
+    print server
+    print "port = "+str(port)
+    raise
   smtpserver.ehlo()
   smtpserver.starttls()
   smtpserver.ehlo
   try:
+    user = raw_input('username:')
+    while '@' not in user:
+      user = raw_input('username needs \'@\'\nusername:')
+      
+    pswd = raw_input('password:')
     smtpserver.login(user, pswd)
   except smtplib.SMTPAuthenticationError:
     print("login failed.  try again.")
     raise
 
   failed_sent = []
-  for item in to: 
-    header = 'To:' + item + '\n' + 'From: ' + user + '\n' + 'Subject:'+subject+' \n'
-    msg = header + message
 
-    try:
-      smtpserver.sendmail(user, item, msg)
-    except smtplib.SMTPRecipientsRefused:
-      failed_sent.append(item)
+  msg = ("From: %s\r\nBCC: %s\r\n%s"
+       % (user, ", ".join(to),message))  
+#Subject: line should be included at top of message
+
+  try:
+    smtpserver.sendmail(user, to, msg)
+  except smtplib.SMTPRecipientsRefused:
+    failed_sent.append(item)
 
   if len(failed_sent)>0:
     print 'these emails failed:'+repr(failed_sent)
 
   smtpserver.close()
+  return
 
 def getuname(sections=None):
   """print out email friendly comma-separated string of all email addresses"""
   studentList, cfg_dict = init_it()
+  unames = []
   if sections is None:  
     try:
       sections = cfg_dict["mysections"]
@@ -95,15 +124,13 @@ def getuname(sections=None):
       raise
   ext = cfg_dict['emailext']
   for section in sections:
-    print("\n\n  "+str(section))
+    studentList, cfg_dict = init_it(section)
     string = ''
-    unames = []
     for item in studentList:
-      string+=item["username"]+ext+","
-      unames.append(item["username"]+ext)
-    print(string)
+      string+=item["username"]+"@"+ext+","
+      unames.append(item["username"]+"@"+ext)
 
-    return unames
+  return unames
   
 def getTotals(section):
   studentlist, cfg_dict = init_it(section)
@@ -117,16 +144,13 @@ def runAll():
   """
   just an example of how to run a few of these functions
   """
-  #students, cfg_dict= init_it()
-  #unames = getuname()
+  students, cfg_dict= init_it()
+
   assign_seats() 
   #text = printScores(['quiz09', 'prelab09', 'inlab09', 'conclusion08'],[784952, 784964])
-  text = printScores(['quiz09', 'prelab09', 'inlab09', 'conclusion08'],[784952])
-  print text
-  #email_subject=" "
-  #email_body=text
-  #send_email(unames,cfg_dict['emailserver']email_subject,email_body)
-
+  #text = printScores(['quiz09', 'prelab09', 'inlab09', 'conclusion08'],[784952])
+  unames = getuname(cfg_dict['mysections'])
+  send_email(['s1gustaf@physics.ucsd.edu'],cfg_dict['smtpserver'],cfg_dict["port"])
 if __name__ == '__main__':
   runAll()
       
