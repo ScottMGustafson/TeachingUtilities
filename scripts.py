@@ -150,7 +150,7 @@ def runAll():
   #text = printScores(['quiz09', 'prelab09', 'inlab09', 'conclusion08'],[784952, 784964])
   #text = printScores(['quiz09', 'prelab09', 'inlab09', 'conclusion08'],[784952])
   unames = getuname(cfg_dict['mysections'])
-  send_email(['s1gustaf@physics.ucsd.edu'],cfg_dict['smtpserver'],cfg_dict["port"])
+  send_email(unames+['s1gustaf@physics.ucsd.edu'],cfg_dict['smtpserver'],cfg_dict["port"])
 if __name__ == '__main__':
   runAll()
       
