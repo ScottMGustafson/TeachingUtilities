@@ -58,7 +58,8 @@ TODO(as of 2014-01-20):
 * Make more use of `setup.py`, right now I just run it from the source dir containing `scripts.py`
 * Write more tests, ensure everything passes
 * Generalize for use with input data other than just `.csv`
-* Fix issue with hidden control char in `.csv`
+* Fix issue with hidden control char in `.csv`\
+* Make this more easily distributable and more easily set up
 
 
 
