@@ -1,5 +1,3 @@
-
-#!/usr/bin/python
 from setuptools import setup, find_packages
 
 def readme():
@@ -24,9 +22,7 @@ setup(name='Teaching Utilites',
       test_suite='nose.collector',
       tests_require=['nose', 'nose-cover3'],
       entry_points={
-          'console_scripts': ['teachingutils-names=teachingutils.scripts:getuname',
-                            'teachingutils-seats=teachingutils.scripts:assign_seats',
-                            'teachingutils-test=teachingutils.Tests.runAllTests'],
+          'console_scripts': [],  #TODO later
       },
       include_package_data=True,
       zip_safe=False)

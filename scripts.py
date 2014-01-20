@@ -8,12 +8,31 @@ import smtplib
 a few other functions that may be useful as well as a main() function to 
 put things together if so desired.
 """
+#define these for the rest of the functions here
+students, cfg_dict= init_it()  
 
-students, cfg_dict= init_it()  #define these for the rest of the functions here
+
+def run():
+  """
+  everything is run through here...
+  """
+  assign_seats() 
+  #text = printScores(['quiz09', 'prelab09', 'inlab09', 'conclusion08'],[784952, 784964])
+  unames = getuname(cfg_dict['mysections'])
+  #send_email(unames+cfg_dict['myuname']+'@ucsd.edu',cfg_dict['smtpserver'],cfg_dict["port"])
+
 
 def assign_seats(sections=None):
   """
   reads input data and then runs seat_randomizer
+
+  input params:
+  -------------
+  sections : the list of sections to assign.  if None, will do all in cfg_dict['mysections']
+
+  output:
+  -------
+  will create one formatted .txt file for each section.
   """
   #cfg_dict = read_config()
   assert(len(cfg_dict.keys())>0)
@@ -23,14 +42,11 @@ def assign_seats(sections=None):
     tables = int(cfg_dict['tables'])
     seats  = int(cfg_dict["seats_per_table"])
   except KeyError:
-    print('\nkey not in dict: check data.cfg.')
-    print('the current list of keys available:\n')
-    for key, value in cfg_dict.iteritems():
-      print key
-    raise
+    msg = '\nkey not in dict: check data.cfg the current list of keys available:\n'
+    msg+=str(cfg_dict.keys())
+    raise Exception(msg)
   except ValueError:
-    print('\nvalues for seats and tables must be ints.\n\n')
-    raise
+    raise Exception('\nvalues for seats and tables must be ints.\n\n')
 
   for item in sections:
     students = getData(cfg_dict,item)
@@ -41,6 +57,16 @@ def assign_seats(sections=None):
   return
 
 def printScores(assignments,sections=None):
+  """
+  input params:
+  -------------
+  assignments : a list of assignment names to use.  Should follow whats in Data/data.cfg
+  sections : the list of sections to use.  if None, will do all in cfg_dict['mysections']
+
+  output:
+  -------
+  a string of data to be printed
+  """
   for section in list(sections):
     string = "\nsection: "+str(section)+"\n===========================================\n"
     for assignment in assignments:
@@ -54,6 +80,11 @@ def printScores(assignments,sections=None):
 def send_email(to,server,port_num=None):
   """
   sends an email.  port defaults to None (smtp defaults as 25)
+  input:
+  ------
+  to : list of email address to send to
+  server : server name.  usually cfg_dict["smtpserver"]
+  port : port name.  defaults to 25 if None
   """
 
   try:
@@ -128,6 +159,9 @@ def getuname(sections=None):
   return unames
   
 def getTotals(section):
+  """
+  gets class totals
+  """
   studentlist = init_it(section)[0]
   print len(studentlist)
   data = []
@@ -135,14 +169,8 @@ def getTotals(section):
     data.append(getTotal(student,cfg_dict))
   return data
 
-"""
-just an example of how to run a few of these functions
-"""
-assign_seats() 
-#text = printScores(['quiz09', 'prelab09', 'inlab09', 'conclusion08'],[784952, 784964])
-#text = printScores(['quiz09', 'prelab09', 'inlab09', 'conclusion08'],[784952])
-unames = getuname(cfg_dict['mysections'])
-send_email(unames+['s1gustaf@physics.ucsd.edu'],cfg_dict['smtpserver'],cfg_dict["port"])
 
-      
+
+if __name__=='__main__':
+  run()
     
