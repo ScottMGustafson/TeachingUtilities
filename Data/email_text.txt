@@ -1,4 +1,4 @@
-Subject: PHYS 1CL: The subject line of the email
+Subject: subject line
 
 some text
 

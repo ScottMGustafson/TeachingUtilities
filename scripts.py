@@ -17,9 +17,10 @@ def run():
   everything is run through here...
   """
   assign_seats() 
-  #text = printScores(['quiz09', 'prelab09', 'inlab09', 'conclusion08'],[784952, 784964])
-  unames = getuname(cfg_dict['mysections'])
-  #send_email(unames+cfg_dict['myuname']+'@ucsd.edu',cfg_dict['smtpserver'],cfg_dict["port"])
+  print printScores(['quiz01', 'prelab01', 'inlab01', 'conclusion01'],cfg_dict["mysections"])
+  unames = getuname(793968)
+  #unames = getuname(cfg_dict['mysections'])
+  send_email(unames+[cfg_dict['myuname']+'@ucsd.edu'],cfg_dict['smtpserver'],cfg_dict["port"])
 
 
 def assign_seats(sections=None):
@@ -148,6 +149,12 @@ def getuname(sections=None):
     except:
       print("exception: key is "+cfg_dict["mysections"])
       raise
+  else:
+    if not type(sections)==list:
+      try:
+        sections = [sections]
+      except:
+        raise Exception("can\'t convert %s to list "%str(sections))
   ext = cfg_dict['emailext']
   for section in sections:
     studentList = init_it(section)[0]
@@ -155,7 +162,6 @@ def getuname(sections=None):
     for item in studentList:
       string+=item["username"]+"@"+ext+","
       unames.append(item["username"]+"@"+ext)
-
   return unames
   
 def getTotals(section):
