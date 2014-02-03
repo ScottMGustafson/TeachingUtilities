@@ -42,7 +42,7 @@ def run():
 def automate_grade_email(lab_no,section):
   unames = getuname(section)
 
-  text='Subject: Phys 1CL: lab '+str(lab_no)+'grades\n\n'
+  text='Subject: Phys 1CL: lab '+str(lab_no)+' grades\n\n'
   text+=printScores(thisweek,section)
   filename=str(section)+'_grades.txt'
   f=open(filename,'w').write(text)
