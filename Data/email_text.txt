@@ -1,16 +1,6 @@
-Subject: PHYS 1CL:  grade statistics for lab 1 and 2
+Subject: a subject line
 
-section: 804212
-===========================================
-  quiz01        7.000   +/-  0.000 
-  prelab01      2.255   +/-  0.542 
-  inlab01       5.000   +/-  0.000 
-  conclusion01  3.580   +/-  1.915 
-  quiz02        3.125   +/-  1.627 
-  prelab02      2.130   +/-  0.824 
-  inlab02       4.700   +/-  1.100 
--------------------------------------------
-  totals:       27.790  +/-  4.389
+text
  
 
 
