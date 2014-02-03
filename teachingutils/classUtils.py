@@ -65,18 +65,12 @@ def getData(cfg_dict=None, mySection=None,verbose=False):  #this code only works
   for row in gradeFile:
     for i in range(0,len(old_keys)): 
       row[ new_keys[i] ] = row.pop(old_keys[i]) 
-    """try:
-      student = namedtuple('Student',row.keys())(**row)
-    except:
-      print("nope")
-      raise"""
 
     if mySection is not None:
       try:
         tmp1 = int(mySection)
         if row['section'] is None:   #this will happen when a student has no listed section
           continue
-          #raise Exception("section is NoneType...check config data")
         else:
           tmp2 = int(row['section'])
       except ValueError, TypeError:
@@ -86,11 +80,10 @@ def getData(cfg_dict=None, mySection=None,verbose=False):  #this code only works
         studentList.append(row)
     else:
       studentList.append(row)
- 
   return studentList
 
 def init_it(section=None):
-  cfgdict = read_config(open(os.path.abspath('Data/data.cfg')))
+  cfgdict = read_config(open(os.path.abspath('Data'+os.sep+'data.cfg')))
   if section is None:
     lst = []
     for item in cfgdict["mysections"]:
@@ -98,6 +91,6 @@ def init_it(section=None):
   else:
     lst = getData(cfg_dict=cfgdict,mySection=section)
   if len(lst)==0: 
-    raise EmptyList("student list is empty for section "+str(item))
+    raise EmptyList("student list is empty for section "+str(section))
   return lst, cfgdict
 

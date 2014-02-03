@@ -9,7 +9,17 @@ a few other functions that may be useful as well as a main() function to
 put things together if so desired.
 """
 #define these for the rest of the functions here
-students, cfg_dict= init_it()  
+students, cfg_dict= init_it() 
+ 
+#this week's lab:
+lab=3
+if lab<10:
+  thisweek=['conclusion0'+str(lab-1),'quiz0'+str(lab), \
+    'prelab0'+str(lab), 'inlab0'+str(lab)]
+else:
+  thisweek=['conclusion'+str(lab-1),'quiz'+str(lab), \
+    'prelab'+str(lab), 'inlab'+str(lab)]
+
 
 
 def run():
@@ -17,11 +27,29 @@ def run():
   everything is run through here...
   """
   assign_seats() 
-  print printScores(['quiz01', 'prelab01', 'inlab01', 'conclusion01'],cfg_dict["mysections"])
-  unames = getuname(793968)
-  #unames = getuname(cfg_dict['mysections'])
-  send_email(unames+[cfg_dict['myuname']+'@ucsd.edu'],cfg_dict['smtpserver'],cfg_dict["port"])
+  #print cfg_dict['mysections']
+  print printScores(thisweek,cfg_dict['mysections'])
 
+  #for an automated weekly email, to be performed upon running this code:
+  for item in cfg_dict['mysections']:
+    automate_grade_email(lab,item)
+    
+  
+  # for a general mass email to all sections, fill in Data/email_text.txt as desired
+  #send_email(unames+[cfg_dict['myuname']+'@ucsd.edu'],cfg_dict['smtpserver'],cfg_dict["port"])
+
+
+def automate_grade_email(lab_no,section):
+  unames = getuname(section)
+
+  text='Subject: Phys 1CL: lab '+str(lab_no)+'grades\n\n'
+  text+=printScores(thisweek,section)
+  filename=str(section)+'_grades.txt'
+  f=open(filename,'w').write(text)
+  send_email(unames+[cfg_dict['myuname']+'@ucsd.edu'], cfg_dict['smtpserver'], \
+      filename, cfg_dict["port"])
+  return
+    
 
 def assign_seats(sections=None):
   """
@@ -68,8 +96,21 @@ def printScores(assignments,sections=None):
   -------
   a string of data to be printed
   """
-  for section in list(sections):
-    string = "\nsection: "+str(section)+"\n===========================================\n"
+  string = ''
+  if sections is None:
+    sections = cfg_dict['mysections']
+  elif type(sections) is not list:
+    if type(sections) is int:
+      sections = [ str(sections) ]
+    else:
+      try:
+        sections = int(sections)   #test if can cast as int.  If yes, make as list of str
+        sections = [ str(sections) ]
+      except:
+        raise Exception('Type of sections should be int, instead got '+str(type(sections)))
+
+  for section in sections:
+    string += "\n\nsection: "+str(section)+"\n===========================================\n"
     for assignment in assignments:
       scores = getStats(assignment,section)
       string += "  %(asgn)-12s  %(mean)-6.3lf  +/-  %(std)-6.3lf\n"%{'asgn':assignment, 'mean':scores[0], 'std':scores[1]}
@@ -78,7 +119,7 @@ def printScores(assignments,sections=None):
     string+="  totals:       %(mean)-6.3lf  +/-  %(std)-6.3lf\n"%{'mean':scores[0], 'std':scores[1]}
   return string
 
-def send_email(to,server,port_num=None):
+def send_email(to,server,email_file=cfg_dict["emailtext"],port_num=None):
   """
   sends an email.  port defaults to None (smtp defaults as 25)
   input:
@@ -93,7 +134,7 @@ def send_email(to,server,port_num=None):
   except:
     port = None
     
-  message = open(cfg_dict["emailtext"]).read()
+  message = open(email_file).read()
   print "\nrecipients = "+str(to)
   print "\n"+message
   yn = raw_input("is this what you want to send? (y/n)")
