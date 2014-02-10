@@ -40,7 +40,7 @@ def run():
     
   
   # for a general mass email to all sections, fill in Data/email_text.txt as desired
-  #send_email(unames+[cfg_dict['myuname']+'@ucsd.edu'],cfg_dict['smtpserver'],cfg_dict["port"])
+  send_email(unames+[cfg_dict['myuname']+'@ucsd.edu'],cfg_dict['smtpserver'],cfg_dict["port"])
 
 
 def automate_grade_email(lab_no,section):
@@ -85,7 +85,7 @@ def assign_seats(sections=None):
     students = getData(cfg_dict,item)
     assert(len(students)>0 and tables!=0 and seats!=0)
     print(item+" "+str(len(students)))
-    seat_randomizer(item,students,tables,seats,filename=str(item)+".txt")
+    seat_randomizer(item,students,tables,seats,filename=str(item)+".txt",msg=" lab "+str(lab))
 
   return
 

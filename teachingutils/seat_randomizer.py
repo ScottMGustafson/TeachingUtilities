@@ -12,7 +12,7 @@ class _Seat(object):
   def __str__(self):
     return self.student['firstname']+' '+self.student['lastname']
 
-def seat_randomizer(section,student_list,tables,seats,filename="seating.txt"):
+def seat_randomizer(section,student_list,tables,seats,filename="seating.txt",msg=None):
   """
   randomize students.
   input:
@@ -33,8 +33,9 @@ def seat_randomizer(section,student_list,tables,seats,filename="seating.txt"):
       except:
         continue
 
+  if msg is None: msg=''
   f = open(filename,"w")
-  f.write("::::::::::\n  "+str(section)+"\n::::::::::\n")
+  f.write("::::::::::\n  "+str(section)+msg+"\n::::::::::\n")
   for i in range(0,tables):
     f.write(("\nTable %-2d\n===============================\n")%(i+1))
     for j in range(0,seats):
