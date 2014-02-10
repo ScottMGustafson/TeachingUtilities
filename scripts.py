@@ -3,6 +3,7 @@ from teachingutils.seat_randomizer import *
 from teachingutils.stats import *
 from teachingutils.error import *
 import smtplib
+import time
 
 """
 a few other functions that may be useful as well as a main() function to 
@@ -12,6 +13,9 @@ put things together if so desired.
 students, cfg_dict= init_it() 
  
 #this week's lab:
+
+## dd/mm/yyyy format
+date = time.strftime("%Y-%m-%d")
 lab=3
 if lab<10:
   thisweek=['conclusion0'+str(lab-1),'quiz0'+str(lab), \
@@ -110,7 +114,7 @@ def printScores(assignments,sections=None):
         raise Exception('Type of sections should be int, instead got '+str(type(sections)))
 
   for section in sections:
-    string += "\n\nsection: "+str(section)+"\n===========================================\n"
+    string += "\n\nsection: "+str(section)+" lab "+str(lab)+"\n===========================================\n"
     for assignment in assignments:
       scores = getStats(assignment,section)
       string += "  %(asgn)-12s  %(mean)-6.3lf  +/-  %(std)-6.3lf\n"%{'asgn':assignment, 'mean':scores[0], 'std':scores[1]}
