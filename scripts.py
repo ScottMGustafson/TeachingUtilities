@@ -13,14 +13,16 @@ put things together if so desired.
 students, cfg_dict= init_it() 
  
 date = time.strftime("%Y-%m-%d")
-lab=3  #this week's lab
-graded_lab = lab-2
+lab=5  #this week's upcoming lab
 if lab<10:
-  thisweek=['conclusion0'+str(lab-1),'quiz0'+str(lab), \
-    'prelab0'+str(lab), 'inlab0'+str(lab)]
+  thisweek=['conclusion0'+str(lab-2),'quiz0'+str(lab-1), \
+    'prelab0'+str(lab-1), 'inlab0'+str(lab-1)]
+elif lab==11:
+  thisweek=['conclusion0'+str(lab-2),'quiz'+str(lab-1), \
+    'prelab'+str(lab-1), 'inlab'+str(lab-1)]
 else:
-  thisweek=['conclusion'+str(lab-1),'quiz'+str(lab), \
-    'prelab'+str(lab), 'inlab'+str(lab)]
+  thisweek=['conclusion'+str(lab-2),'quiz'+str(lab-1), \
+    'prelab'+str(lab-1), 'inlab'+str(lab-1)]
 
 
 
