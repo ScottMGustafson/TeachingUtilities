@@ -12,11 +12,8 @@ put things together if so desired.
 #define these for the rest of the functions here
 students, cfg_dict= init_it() 
  
-#this week's lab:
-
-## dd/mm/yyyy format
 date = time.strftime("%Y-%m-%d")
-lab=3
+lab=3  #this week's lab
 if lab<10:
   thisweek=['conclusion0'+str(lab-1),'quiz0'+str(lab), \
     'prelab0'+str(lab), 'inlab0'+str(lab)]
@@ -31,7 +28,7 @@ def run():
   everything is run through here...
   """
   assign_seats() 
-  #print cfg_dict['mysections']
+  print cfg_dict['mysections']
   print printScores(thisweek,cfg_dict['mysections'])
 
   #for an automated weekly email, to be performed upon running this code:
@@ -40,7 +37,8 @@ def run():
     
   
   # for a general mass email to all sections, fill in Data/email_text.txt as desired
-  send_email(unames+[cfg_dict['myuname']+'@ucsd.edu'],cfg_dict['smtpserver'],cfg_dict["port"])
+  unames = getuname()
+  send_email(unames+[cfg_dict['myuname']+'@ucsd.edu'],cfg_dict['smtpserver'],port_num=cfg_dict["port"])
 
 
 def automate_grade_email(lab_no,section):
