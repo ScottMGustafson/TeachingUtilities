@@ -35,7 +35,7 @@ def seat_randomizer(section,student_list,tables,seats,filename="seating.txt",msg
 
   if msg is None: msg=''
   f = open(filename,"w")
-  f.write("::::::::::\n  "+str(section)+msg+"\n::::::::::\n")
+  f.write(":::::::::::::::\n  "+str(section)+msg+"\n:::::::::::::::\n")
   for i in range(0,tables):
     f.write(("\nTable %-2d\n===============================\n")%(i+1))
     for j in range(0,seats):

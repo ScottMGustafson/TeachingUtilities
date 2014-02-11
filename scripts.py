@@ -36,7 +36,7 @@ def run():
 
   #for an automated weekly email, to be performed upon running this code:
   for item in cfg_dict['mysections']:
-    automate_grade_email(graded_lab,item)
+    automate_grade_email(item)
     
   
   # for a general mass email to all sections, fill in Data/email_text.txt as desired
@@ -44,10 +44,10 @@ def run():
   send_email(unames+[cfg_dict['myuname']+'@ucsd.edu'],cfg_dict['smtpserver'],port_num=cfg_dict["port"])
 
 
-def automate_grade_email(lab_no,section):
+def automate_grade_email(section):
   unames = getuname(section)
 
-  text='Subject: Phys 1CL: lab '+str(lab_no)+' grades\n\n'
+  text='Subject: Phys 1CL: grades.\n\n'
   text+=printScores(thisweek,section)
   filename=str(section)+'_grades.txt'
   f=open(filename,'w').write(text)
@@ -115,7 +115,7 @@ def printScores(assignments,sections=None):
         raise Exception('Type of sections should be int, instead got '+str(type(sections)))
 
   for section in sections:
-    string += "\n\nsection: "+str(section)+" lab "+str(lab)+"\n===========================================\n"
+    string += "\n\nsection: "+str(section)+"\n===========================================\n"
     for assignment in assignments:
       scores = getStats(assignment,section)
       string += "  %(asgn)-12s  %(mean)-6.3lf  +/-  %(std)-6.3lf\n"%{'asgn':assignment, 'mean':scores[0], 'std':scores[1]}
