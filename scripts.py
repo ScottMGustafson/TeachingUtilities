@@ -13,7 +13,7 @@ put things together if so desired.
 students, cfg_dict= init_it() 
  
 date = time.strftime("%Y-%m-%d")
-lab=5  #this week's upcoming lab
+lab=int(raw_input("which is this week's upcoming lab? (integer number)"))  #this week's upcoming lab
 if lab<10:
   thisweek=['conclusion0'+str(lab-2),'quiz0'+str(lab-1), \
     'prelab0'+str(lab-1), 'inlab0'+str(lab-1)]
@@ -23,6 +23,9 @@ elif lab==11:
 else:
   thisweek=['conclusion'+str(lab-2),'quiz'+str(lab-1), \
     'prelab'+str(lab-1), 'inlab'+str(lab-1)]
+
+
+
 
 
 
@@ -223,6 +226,5 @@ def getTotals(section):
 
 
 
-if __name__=='__main__':
-  run()
-    
+run()
+
