@@ -46,7 +46,7 @@ def lenchecker(func):
   def inner(*args,**kwargs):
     lst = func(*args,**kwargs)
     if type(lst) is dict:
-      if len(lst.keys())==0: raise EmptyDict
+      if len(list(lst.keys()))==0: raise EmptyDict
     elif type(lst) is list:
       if len(lst)==0: raise EmptyList
     elif type(lst) is str:
@@ -61,5 +61,5 @@ def printFields(obj):
   print all the fields.  This is useful when the object fields seem screwy
   """
   for name in obj._fields:
-    print name
+    print(name)
   return

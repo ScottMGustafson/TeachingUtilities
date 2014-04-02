@@ -67,7 +67,7 @@ class stringTest(unittest.TestCase):
       print("\nresult:")
       print(result)
       print("\nsanitized dict:")
-      print(sanitizeKeys(cfg_dict,lstt))
+      print((sanitizeKeys(cfg_dict,lstt)))
       raise
 
   def test_get_nums(self):

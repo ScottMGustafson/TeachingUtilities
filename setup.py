@@ -16,9 +16,7 @@ setup(name='Teaching Utilites',
       packages=find_packages('teachingutils','Tests'),
       package_dir = {'':'teachingutils',
                      'teachingutils/Tests':'teachingutils.Tests'},   # tell distutils packages are under src
-      install_requires=[
-          'scipy', 'numpy'
-      ],
+      install_requires=['numpy'],
       test_suite='nose.collector',
       tests_require=['nose', 'nose-cover3'],
       entry_points={

@@ -25,7 +25,7 @@ class DataTest(unittest.TestCase):
       self.assertEqual(self.cfg_dict,test_dict)
     except:
       print("cfg_dtc")
-      print(self.cfg_dict)
+      print((self.cfg_dict))
       print("\n\nnot equal to:")
       print(test_dict)
       raise
@@ -36,7 +36,7 @@ class DataTest(unittest.TestCase):
     try:
       self.assertEqual(len(testList),2)
     except:
-      print("list is:"+str(testList))
+      print(("list is:"+str(testList)))
       raise
     for item in testList:
       self.assertEqual(len(item._fields),6)

@@ -1,91 +1,67 @@
-from classUtils import *
-import scipy.stats as stats
-from stringtools import *
+from .classutils import init_it
+from .stringtools import *
 import numpy as np
-from sys import exit
+from warnings import warn
 
 """
 Some functions to get relevant statistics
 """
-def getStats(assignment,section):
-  """
-  input:  assignment name (str), section number
-  output: tuple of (mean, stdev).  returns None on failure
-  """
-  studentlist, cfg_dict = init_it(section)
-  try:
-    assert(isassn(cfg_dict,assignment))
-  except AssertionError:
-    print(assignment+" is not in dict")
-    return None
-  except:
-    raise
-  data = []
+def getStats(assignment, section, studentlist, cfg_dict):
+    """
+    input:    assignment name (str), section number
+    output: tuple of (mean, stdev).    returns None on failure
+    """
+    if not rm_nums_replace(assignment) in dict(cfg_dict['Assignments']).keys():
+        raise Exception(assignment+" not in "+str(dict(cfg_dict['Assignments']).keys()))
+    data = []
 
-
-  for item in studentlist:
-    temp = item[assignment]
+    for item in studentlist:
+        try:
+            data.append(float(item[assignment]))
+        except KeyError:
+            raise KeyError(assignment+" not in "+str(item.keys()))
+        except:    #item is presumably None
+            if item[assignment] is None or item[assignment]=='':
+                pass
+            else:
+                raise ValueError(assignment+": "+item[assignment])
+    return np.mean(data), np.std(data)
+    
+def getOverallStats(section, studentlist, cfg_dict):
+    """
+    input:    section
+    output:    tuple of (mean, stdev)
+    """
+    data=[getTotal(item,cfg_dict) for item in studentlist]
     try:
-      data.append(float(temp))
-    except ValueError:  #item is presumably None
-      if temp is None or temp=='':
-        pass
-      else:
-        print(assignment+": "+str(temp))
+        return np.mean(data),np.std(data)
+    except:
+        print(data)
         raise
 
-  return np.mean(data), np.std(data)
-  
-def getAssignments(cfg_dict):
-  assn = []
-  for item in cfg_dict.keys():
-    if "$" in item:
-      assn.append(item)
-  return assn
+def getTotal(student, cfg_dict):
+    """
+    get the totals for a student.
+    input:
+    ----------------------------
+    student: an instance of Student
+    cfg_dict: the configuration dictionary defined in classUtils.read_config
 
-def isassn(cfg_dict,string):
-  """tests if a given string is an assignment.  returns True if it is"""
+    output:
+    ----------------------------
+    score summed over all assignments
+    
+    """
+    summ = 0.
+    for item in list(student.keys()):
+        if rm_nums_replace(item) in cfg_dict['Assignments'].keys():
+            try:
+                summ+=float(student[item])
+            except:
+                if student[item]=='' or student[item]==None:
+                    continue
+                else:
+                    raise ValueError("cannot convert: "+str(student[item]))
+    return summ
 
-  
-  if rm_nums_replace(string) in getAssignments(cfg_dict):
-    return True
-  else:
-    return False
-  
-def getOverallStats(section):
-  """
-  input:  section
-  output:  tuple of (mean, stdev)
-  """
-  lst, cfg_dict = init_it(section)
-  data = []
-  for item in lst:
-    data.append(getTotal(item,cfg_dict))
-  try:
-    return np.mean(data),np.std(data)
-  except:
-    print data
-    raise
-
-def getTotal(student,cfg_dict):
-  """
-  get the totals for a student.
-  input:
-  ----------------------------
-  student: an instance of Student
-  cfg_dict: the configuration dictionary defined in classUtils.read_config
-
-  output:
-  ----------------------------
-  score summed over all assignments
-  
-  """
-  summ = 0.
-  for item in student.keys():
-    if isassn(cfg_dict,item):
-      try:
-        summ+=float(student[item])
-      except ValueError, TypeError:
-        pass
-  return summ
-  
+    

@@ -1,7 +1,7 @@
 import os
 import sys
-from classUtils import *
-from error import *
+from .classutils import *
+from .error import *
 from random import shuffle
 
 class _Seat(object):
@@ -22,13 +22,13 @@ def seat_randomizer(section,student_list,tables,seats,filename="seating.txt",msg
   output:
     None, but produces formatted txt file to be used as seating chart
   """
-  seatList = []
+  seat_list = []
 
   shuffle(student_list)
   for i in range(0,seats):
     for j in range(0,tables):
       try:
-        seatList.append(_Seat(j,i,student_list[0]))
+        seat_list.append(_Seat(j,i,student_list[0]))
         del(student_list[0])
       except:
         continue
@@ -39,7 +39,7 @@ def seat_randomizer(section,student_list,tables,seats,filename="seating.txt",msg
   for i in range(0,tables):
     f.write(("\nTable %-2d\n===============================\n")%(i+1))
     for j in range(0,seats):
-      for item in seatList:
+      for item in seat_list:
         if item.table == i and item.seat == j:
           f.write(str(item)+"\n")
         else:
