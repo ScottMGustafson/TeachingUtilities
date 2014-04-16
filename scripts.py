@@ -117,13 +117,15 @@ def printScores(assignments,sections=None):
     assert(len(lst)>0)
 
     for section in sections:
-        string += "\n\nsection: "+str(section)+"\n===========================================\n"
+        string += "\n\nsection: "+str(section)+\
+        "     mean            std. dev."+\
+        "\n===========================================\n"
         for assignment in assignments:
             scores = getStats(assignment, section, lst, cfg_dict)
-            string += "    %(asgn)-12s    %(mean)-6.3lf    +/-    %(std)-6.3lf\n"%{'asgn':assignment, 'mean':scores[0], 'std':scores[1]}
+            string += "    %(asgn)-12s    %(mean)-6.3lf           %(std)-6.3lf\n"%{'asgn':assignment, 'mean':scores[0], 'std':scores[1]}
         scores = getOverallStats(section, lst, cfg_dict)
         string+="-------------------------------------------\n"
-        string+="    totals:             %(mean)-6.3lf    +/-    %(std)-6.3lf\n"%{'mean':scores[0], 'std':scores[1]}
+        string+="    totals:         %(mean)-6.3lf           %(std)-6.3lf\n"%{'mean':scores[0], 'std':scores[1]}
     return string
 
 def send_email(to,server,email_file=cfg_dict["Email"]["email_text"],port_num=None):

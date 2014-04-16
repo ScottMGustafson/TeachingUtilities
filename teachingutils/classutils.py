@@ -7,8 +7,6 @@ from .error import *
 import warnings
 
 
-
-
 def defaultfilepath(cfgpath=os.path.join('Data','configdata.cfg')): 
     """get the path to the default location for the data directory"""
     data_path, _ = os.path.split(__file__)
