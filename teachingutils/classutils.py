@@ -71,7 +71,7 @@ def getData(cfg_dict=None, mySection=None,verbose=False):    #this code only wor
     new_keys = stringtools.sanitizeKeys(keys, old_keys) 
 
     studentList = []
-    for row in list(gradeFile)[1:]:
+    for row in list(gradeFile):
         for i in range(0,len(old_keys)): 
             row[ new_keys[i] ] = row.pop(old_keys[i]) 
         row['section'] = str(stringtools.numConvert(row['section'].split('.')[0]))
