@@ -61,8 +61,6 @@ def convert(string, char='?'):
     
 
 class Student(object):
-    #get all students as a class variable
-
     def __init__(self, row):
         """row is a dict"""
         aliases = cfg_dict['Column Headers']
