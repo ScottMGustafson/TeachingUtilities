@@ -1,7 +1,6 @@
-from teachingutils.classutils import *
-from teachingutils.seat_randomizer import *
-from teachingutils.stats import *
-from teachingutils.error import *
+import classutils 
+from classutils import all_students
+import seat_randomizer
 import smtplib
 import time
 
@@ -10,56 +9,29 @@ a few other functions that may be useful as well as a main() function to
 put things together if so desired.
 """
 
- 
 date = time.strftime("%Y-%m-%d")
-lab=int(input("which is this week's upcoming lab? (integer number)"))    #this week's upcoming lab
-if lab==1:
-    thisweek=[]
-if lab==2:
-    thisweek=['quiz01', 'prelab01', 'inlab01']
-elif 2<lab<=10:
-    thisweek=['conclusion0'+str(lab-2),'quiz0'+str(lab-1), \
-            'prelab0'+str(lab-1), 'inlab0'+str(lab-1)]
-elif lab==11:
-    thisweek=['conclusion09','quiz10','prelab10', 'inlab10']
-else:
-    thisweek=['conclusion'+str(lab-2),'quiz'+str(lab-1), \
-            'prelab'+str(lab-1), 'inlab'+str(lab-1)]
+mysections = [item.strip() for item in list(classutils.cfg_dict['Config']['mysections'].split(','))]
 
-#define these for the rest of the functions here
-students, cfg_dict= init_it() 
-mysections = [int(item) for item in list(cfg_dict['Config']['mysections'].split(','))]
+def get_thisweek():
+    """get the latest few assignments, as relevant only to UCSD phys 1-series labs."""
+    lab=int(input("which is this week's upcoming lab? (integer number): "))    #this week's upcoming lab
+    if lab<2:
+        raise Exception("no grades to post")
+    elif lab==2:
+        thisweek=['quiz01', 'prelab01', 'inlab01']
+    elif 2<lab<=10:
+        thisweek=['conclusion0'+str(lab-2),'quiz0'+str(lab-1), \
+                'prelab0'+str(lab-1), 'inlab0'+str(lab-1)]
+    elif lab==11:
+        thisweek=['conclusion09','quiz10','prelab10', 'inlab10']
+    else:
+        thisweek=['conclusion'+str(lab-2),'quiz'+str(lab-1), \
+                'prelab'+str(lab-1), 'inlab'+str(lab-1)]
+    return thisweek, lab
 
-def run():
-    """
-    everything is run through here...
-    """
-    assign_seats() 
-    print(printScores(thisweek))
+thisweek, lab = get_thisweek()
 
-    #for an automated weekly email, to be performed upon running this code:
-    for item in mysections:
-        automate_grade_email(item)
-        
-    
-    #for a general mass email to all sections, fill in Data/email_text.txt as desired
-    unames = getuname()
-    send_email(unames+[cfg_dict['Email']['myuname']+'@ucsd.edu'],cfg_dict['Email']['smtpserver'],port_num=cfg_dict['Email']["port"])
-
-
-def automate_grade_email(section):
-    unames = getuname(section)
-
-    text='Subject: Phys 1CL: grades.\n\n'
-    text+=printScores(thisweek,section)
-    filename=str(section)+'_grades.txt'
-    f=open(filename,'w').write(text)
-    send_email(unames+[cfg_dict['Email']['myuname']+'@ucsd.edu'], cfg_dict['Email']['smtpserver'], \
-                filename, cfg_dict['Email']["port"])
-    return
-        
-
-def assign_seats(sections=None):
+def assign_seats(sections=mysections):
     """
     reads input data and then runs seat_randomizer
 
@@ -72,71 +44,67 @@ def assign_seats(sections=None):
     will create one formatted .txt file for each section.
     """
     try:
-        if sections is None:    
-            sections = mysections
-        tables = int(cfg_dict["Config"]['tables'])
-        seats  = int(cfg_dict["Config"]["seats_per_table"])
+        tables = int(classutils.cfg_dict["Config"]['tables'])
+        seats  = int(classutils.cfg_dict["Config"]["seats_per_table"])
+        assert(tables!=0 and seats!=0)
     except ValueError:
         raise ValueError('\nvalues for seats and tables must be ints.\n\n')
 
-    for item in sections:
-        students = getData(cfg_dict,item)
-        assert(len(students)>0 and tables!=0 and seats!=0)
-        print((str(item)+" "+str(len(students))))
-        seat_randomizer(item,students,tables,seats,filename=str(item)+".txt",msg=" lab "+str(lab))
-
+    for sec in sections:
+        sec=str(sec)
+        students = classutils.get_section(sec)
+        
+        try:
+            assert(len(students)>0)
+        except AssertionError:
+            print(sec, type(sec))
+            print(all_students[24].section, type(all_students[24].section))
+            raise
+        print(sec+'.txt')
+        seat_randomizer.seat_randomizer(sec,tables,seats,
+            filename=sec+".txt", msg=str(sec)+" lab "+str(lab))
     return
 
-def printScores(assignments,sections=None):
+def print_scores(assignments,section):
     """
     input params:
     -------------
     assignments : a list of assignment names to use.    Should follow whats in Data/data.cfg
-    sections : the list of sections to use.    if None, will do all in cfg_dict['mysections']
+    sections : the list of sections to use.    if None, will do all in classutils.cfg_dict['mysections']
 
     output:
     -------
     a string of data to be printed
     """
     string = ''
-    if sections is None:
-        sections = mysections
-    elif type(sections) is not list:
-        if type(sections) is int:
-            sections = [ sections ]
-        else:
-            try:
-                sections = int(sections)     #test if can cast as int.    If yes, make as list of str
-                sections = [ sections ]
-            except:
-                raise Exception('Type of sections should be int, instead got '+str(type(sections)))
-    else:
-        sections = [int(item) for item in sections]
-    lst = [item for item in students if int(item['section']) in sections]
+    lst=classutils.get_section(str(section))
 
-    assert(len(lst)>0)
+    assert(len(lst)>0 and type(assignments) is list)
 
-    for section in sections:
-        string += "\n\nsection: "+str(section)+\
-        "     mean            std. dev."+\
-        "\n===========================================\n"
-        for assignment in assignments:
-            scores = getStats(assignment, section, lst, cfg_dict)
-            string += "    %(asgn)-12s    %(mean)-6.3lf           %(std)-6.3lf\n"%{'asgn':assignment, 'mean':scores[0], 'std':scores[1]}
-        scores = getOverallStats(section, lst, cfg_dict)
-        string+="-------------------------------------------\n"
-        string+="    totals:         %(mean)-6.3lf           %(std)-6.3lf\n"%{'mean':scores[0], 'std':scores[1]}
+    string += "\n\nsection: "+str(section)+\
+    "     mean            std. dev."+\
+    "\n===========================================\n"
+    for assignment in assignments:
+        assert(type(assignment) is str)
+        scores = classutils.Student.getStats(assignment, lst)
+        string += "    %(asgn)-12s    %(mean)-6.3lf           %(std)-6.3lf\n"%{'asgn':assignment, 'mean':scores[0], 'std':scores[1]}
+    scores = classutils.Student.get_all_stats(lst)
+    string+="-------------------------------------------\n"
+    string+="    totals:         %(mean)-6.3lf           %(std)-6.3lf\n"%{'mean':scores[0], 'std':scores[1]}
     return string
 
-def send_email(to,server,email_file=cfg_dict["Email"]["email_text"],port_num=None):
-    """
-    sends an email.    port defaults to None (smtp defaults as 25)
-    input:
-    ------
-    to : list of email address to send to
-    server : server name.    usually cfg_dict["Email"]["smtpserver"]
-    port : port name.    defaults to 25 if None
-    """
+def automate_grade_email(unames,section, text='Subject: Phys 1BL: grades\n\n'):
+    text+=print_scores(thisweek,section)
+    filename=str(section)+'_grades.txt'
+    f=open(filename,'w').write(text)
+    send_email(unames+[ classutils.cfg_dict['Email']['myuname']+'@ucsd.edu' ], classutils.cfg_dict['Email']['smtpserver'], 
+                filename, classutils.cfg_dict['Email']["port"])
+    return
+
+def send_email(to, 
+               server=classutils.cfg_dict["Email"]["smtpserver"],
+               email_file=classutils.cfg_dict["Email"]["email_text"],
+               port_num=classutils.cfg_dict["Email"]["port"]):
 
     try:
         port = int(port_num)
@@ -187,38 +155,21 @@ def send_email(to,server,email_file=cfg_dict["Email"]["email_text"],port_num=Non
     smtpserver.close()
     return
 
-def getuname(sections=None):
-    """print out email friendly comma-separated string of all email addresses"""
-    unames = []
-    if sections is None:    
-        sections = mysections
-    else:
-        if not type(sections)==list:
-            try:
-                sections = [sections]
-            except:
-                raise Exception("can\'t convert %s to list "%str(sections))
-    ext = cfg_dict["Email"]['emailext']
-    for section in sections:
-        studentList = init_it(section)[0]
-        string = ''
-        for item in studentList:
-            string+=item["username"]+"@"+ext+","
-            unames.append(item["username"]+"@"+ext)
-    return unames
-    
-def getTotals(section):
-    """
-    gets class totals
-    """
-    studentlist = init_it(section)[0]
-    print(len(studentlist))
-    data = []
-    for student in studentlist:
-        data.append(getTotal(student,cfg_dict))
-    return data
+if __name__=='__main__':
+    assign_seats() 
 
+    #for an automated weekly email, to be performed upon running this code:
+    all_sections=[]
+    for section in mysections:
+        lst=classutils.get_section(section)
+        all_sections+=lst
+        unames=classutils.Student.get_emails(lst)
+        automate_grade_email(unames,section)
+        
+    #for a general mass email to all sections, fill in Data/email_text.txt as desired
+    unames=classutils.Student.get_emails(all_sections)
 
-
-run()
+    send_email(unames+[classutils.cfg_dict['Email']['myuname']+'@ucsd.edu'],
+        server=classutils.cfg_dict['Email']['smtpserver'],
+        port_num=classutils.cfg_dict['Email']["port"])
 
