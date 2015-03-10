@@ -3,6 +3,7 @@ from classutils import all_students
 import seat_randomizer
 import smtplib
 import time
+from getpass import getpass
 
 """
 a few other functions that may be useful as well as a main() function to 
@@ -132,7 +133,7 @@ def send_email(to,
         while '@' not in user:
             user = input('username needs \'@\'\nusername:')
             
-        pswd = input('password:')
+        pswd = getpass()
         smtpserver.login(user, pswd)
     except smtplib.SMTPAuthenticationError:
         print("login failed.    try again.")
@@ -167,9 +168,10 @@ if __name__=='__main__':
         automate_grade_email(unames,section)
         
     #for a general mass email to all sections, fill in Data/email_text.txt as desired
-    unames=classutils.Student.get_emails(all_sections)
+    """unames=classutils.Student.get_emails(all_sections)
 
     send_email(unames+[classutils.cfg_dict['Email']['myuname']+'@ucsd.edu'],
         server=classutils.cfg_dict['Email']['smtpserver'],
         port_num=classutils.cfg_dict['Email']["port"])
+    """
 

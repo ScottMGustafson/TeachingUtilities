@@ -156,7 +156,7 @@ class Student(object):
 
     @staticmethod
     def get_emails(studentlist, ext=cfg_dict["Email"]["emailext"]):
-        return [item.username+ext for item in studentlist]
+        return [item.username+'@'+ext for item in studentlist]
 
 all_students=reader(cfg_dict["Config"]["csvfile"])
 
