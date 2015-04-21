@@ -32,6 +32,8 @@ def get_thisweek():
 
 thisweek, lab = get_thisweek()
 
+#thisweek, lab = 1,0
+
 def assign_seats(sections=mysections):
     """
     reads input data and then runs seat_randomizer
@@ -168,6 +170,10 @@ if __name__=='__main__':
         automate_grade_email(unames,section)
         
     #for a general mass email to all sections, fill in Data/email_text.txt as desired
+    #unames=classutils.Student.get_emails(classutils.get_section('842222')+classutils.get_section('842226'))
+
+    print(unames)
+
     """unames=classutils.Student.get_emails(all_sections)
 
     send_email(unames+[classutils.cfg_dict['Email']['myuname']+'@ucsd.edu'],

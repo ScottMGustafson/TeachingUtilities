@@ -48,30 +48,35 @@ def convert(string, char='?'):
     conc02
     """
     
+
+    #need to find a better, more general name to parse headers
     for key, value in cfg_dict["Assignments"].items():
         val=value.split(char)
         val[0] = val[0].strip()
         val[1] = val[1].strip()
-        if string.startswith(val[0]) and val[1] in string:
-            unique=string.replace(val[0],"")
-            unique=unique.replace(val[1],"")[0:2]
+        if val[0] in string:
+            unique=string.replace(val[0],"")[0:2]
             ret_val = key.split(char)
-            assignment_map[string]= ret_val[0]+unique #map to define headers
+            assignment_map[string]=ret_val[0]+unique 
+            return ret_val[0]+unique 
     return None
     
 
 class Student(object):
-    def __init__(self, row):
+    def __init__(self, row,char='?'):
         """row is a dict"""
         aliases = cfg_dict['Column Headers']
-        for key, val in aliases.items():
-            setattr(self,key,row[val])
+        for k, v in aliases.items():  
+            setattr(self,k,row[v])
 
         for key, val in row.items():
+            key=key.strip()
             if not key in assignment_map.keys():
-                convert(key)
+                key=convert(key)
+                
             try:
                 newkey=assignment_map[key]
+                #print(newkey)
                 setattr(self,newkey,val)
             except KeyError:
                 pass
@@ -140,7 +145,10 @@ class Student(object):
         input:    assignment name (str), section number
         output: tuple of (mean, stdev).    returns None on failure
         """
-        assert(assignment in assignment_map.values())
+        try:
+            assert(assignment in assignment_map.values())
+        except:
+            raise Exception(str(assignment)+" not in "+str(assignment_map.values()))
         col = Student.get_column(studentlist, assignment)
         for i in range(0,len(col)):
             try:
